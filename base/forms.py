@@ -1,6 +1,5 @@
 from django.forms import ModelForm
-from .models import Video, Image
-from django import forms
+from .models import Video, Image, Audio
 
 class VideoForm(ModelForm):
     class Meta:
@@ -11,3 +10,8 @@ class ImageForm(ModelForm):
     class Meta:
         model = Image
         fields = ['photo']
+
+class AudioForm(ModelForm):
+    class Meta:
+        model = Audio
+        fields = ['audio']

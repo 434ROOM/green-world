@@ -33,3 +33,19 @@ class Image(models.Model):
             if os.path.isfile(self.photo.path):
                 os.remove(self.photo.path)
         super().delete(*args, **kwargs)
+
+class Audio(models.Model):
+    title = models.CharField(max_length=20)
+    audio = models.FileField(upload_to='audios/')
+
+    def save(self, *args, **kwargs):
+        if not self.title and self.audio:
+            self.title = os.path.splitext(os.path.basename(self.audio.name))[0]
+
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        if self.audio:
+            if os.path.isfile(self.audio.path):
+                os.remove(self.audio.path)
+        super().delete(*args, **kwargs)
