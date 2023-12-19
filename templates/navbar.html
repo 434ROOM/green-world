@@ -38,7 +38,10 @@
 <body>
     <nav>
         <ul>
-            <a href="#">
+            <a href="{% url 'home' %}">
+                <li>Home</li>
+            </a>
+            <a href="{% url 'audio' %}">
                 <li>Audio</li>
             </a>
             <a href="{% url 'video' %}">

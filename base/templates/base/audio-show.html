@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image</title>
+    <title>Audio</title>
 </head>
 
 <style>
@@ -30,7 +30,7 @@
         color: white;
     }
 
-    .photo-collection {
+    .audio-collection {
         display: flex;
         flex-direction: column;
         row-gap: 20px;
@@ -38,22 +38,22 @@
         align-items: center;
     }
 
-    .photo-self {
+    .audio-self {
         display: flex;
         flex-direction: row;
         justify-content: center;
     }
 
-    .photo-self a {
+    .audio-self a {
         color: black;
         text-decoration: none;
     }
 
-    .photo-self a:hover {
+    .audio-self a:hover {
         text-decoration: underline;
     }
 
-    .photo-self a:visited {
+    .audio-self a:visited {
         color: black;
     }
 </style>
@@ -62,17 +62,17 @@
     {% extends 'main.html' %}
 
     {% block content %}
-    {% if imgs %}
-    <div class="photo-collection">
-        {% for img in imgs %}
-        <div class="photo-self">
-            <img src="{{ img.photo.url }}" width="50%" alt="">
-            <a href="{% url 'delete-img' img.id %}">X</a>
+    {% if audios %}
+    <div class="audio-collection">
+        {% for audio in audios %}
+        <div class="audio-self">
+            <audio src="{{ audio.audio.url }}"></audio>
+            <a href="{% url 'delete-audio' img.id %}">X</a>
         </div>
         {% endfor %}
     </div>
     {% else %}
-    <h2>Try Uploading your first image</h2>
+    <h2>Try Uploading your first audio</h2>
     {% endif %}
 
     <form action="" method="post" class="upload-form" enctype="multipart/form-data">
@@ -81,6 +81,7 @@
         {{form.as_p}}
         <button type="submit" class="upload-button">Submit</button>
     </form>
+
     {% endblock %}
 </body>
 
