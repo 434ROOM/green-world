@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image</title>
+</head>
+
+<style>
+    h2 {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .upload-form {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        row-gap: 10px;
+    }
+
+    .upload-button {
+        border: 0;
+        border-radius: 15px;
+        padding: 10px 20px;
+        background-color: black;
+        color: white;
+    }
+
+    .photo-collection {
+        display: flex;
+        flex-direction: column;
+        row-gap: 20px;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .photo-self {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+    }
+
+    .photo-self a {
+        color: black;
+        text-decoration: none;
+    }
+
+    .photo-self a:hover {
+        text-decoration: underline;
+    }
+
+    .photo-self a:visited {
+        color: black;
+    }
+</style>
+
+<body>
+    {% extends 'main.html' %}
+
+    {% block content %}
+    {% if imgs %}
+    <div class="photo-collection">
+        {% for img in imgs %}
+        <div class="photo-self">
+            <img src="{{ img.photo.url }}" width="50%" alt="">
+            <a href="{% url 'delete-img' img.id %}">X</a>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <h2>Try Uploading your first image</h2>
+    {% endif %}
+
+    <form action="" method="post" class="upload-form" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        {{form.as_p}}
+        <button type="submit" class="upload-button">Submit</button>
+    </form>
+    {% endblock %}
+</body>
+
+</html>

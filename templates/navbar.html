@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<style>
+    li {
+        display: inline;
+        text-decoration: none;
+    }
+
+    nav ul {
+        padding: 0 50px;
+        height: 5vh;
+        display: flex;
+        flex-direction: row;
+        column-gap: 25px;
+        justify-content: center;
+        align-items: center;
+        font-size: 20px;
+        font-family: sans-serif;
+    }
+
+    nav ul a {
+        color: black;
+        text-decoration: none;
+    }
+
+    nav ul a:hover {
+        text-decoration: underline;
+    }
+</style>
+
+<body>
+    <nav>
+        <ul>
+            <a href="{% url 'home' %}">
+                <li>Home</li>
+            </a>
+            <a href="{% url 'audio' %}">
+                <li>Audio</li>
+            </a>
+            <a href="{% url 'video' %}">
+                <li>Video</li>
+            </a>
+            <a href="{% url 'image' %}">
+                <li>Image</li>
+            </a>
+        </ul>
+    </nav>
+</body>
+
+</html>
