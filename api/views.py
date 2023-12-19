@@ -23,7 +23,7 @@ class addVideo(APIView):
             new_dict = {}
             new_dict.update(serializer.data)
             new_dict.update({"code":status.HTTP_201_CREATED})
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(new_dict, status=status.HTTP_201_CREATED)
         
 @api_view(['GET']) 
 def getImage(request):
