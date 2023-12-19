@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
-from .models import Video, Image
-from .forms import VideoForm, ImageForm
+from .models import Video, Image, Audio
+from .forms import VideoForm, ImageForm, AudioForm
 
 # Create your views here.
 def home(request):
@@ -48,3 +48,24 @@ def deleteImg(request, pk):
         img.delete()
         return redirect('image')
     return render(request, 'base/delete.html', {"obj":img})
+
+def audioShow(request):
+    if request.method == 'POST':
+        form = AudioForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect("audio")
+    else:
+        form = AudioForm()
+    
+    audios = Audio.objects.all()
+    context = {"audios":audios, "form":form}
+    return render(request, "base/audio-show.html", context)
+
+def deleteAudio(request, pk):
+    audio = Audio.objects.get(id=pk)
+
+    if request.method == 'POST':
+        audio.delete()
+        return redirect('audio')
+    return render(request, 'base/delete.html', {"obj":audio})
