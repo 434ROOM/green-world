@@ -66,8 +66,14 @@
     <div class="audio-collection">
         {% for audio in audios %}
         <div class="audio-self">
-            <audio src="{{ audio.audio.url }}"></audio>
-            <a href="{% url 'delete-audio' img.id %}">X</a>
+            <div>
+                <audio controls>
+                    <source src="{{ audio.audio.url }}" type="{{ audio.audio.content_type }}">
+                </audio>
+                <p>{{audio.title}}</p>
+            </div>
+
+            <a href="{% url 'delete-audio' audio.id %}">X</a>
         </div>
         {% endfor %}
     </div>
