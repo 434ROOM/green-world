@@ -4,7 +4,7 @@ from django.db import models
 # Create your models here.
 class Video(models.Model):
     title = models.CharField(max_length=200, null=True)
-    video_file = models.FileField(upload_to="videos/", null=True, blank=True)
+    video_file = models.FileField(upload_to="videos/")
 
     def save(self, *args, **kwargs):
         if not self.title and self.video_file:

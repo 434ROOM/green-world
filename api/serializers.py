@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from base.models import Video, Image
+from base.models import Video, Image, Audio
 
 class VideoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -9,4 +9,9 @@ class VideoSerializer(serializers.ModelSerializer):
 class ImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Image
+        fields = '__all__'
+
+class AudioSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Audio
         fields = '__all__'
