@@ -1,16 +1,27 @@
 import os
 from django.db import models
+from .utility import getVideoUtility
 
 # Create your models here.
 class Video(models.Model):
     title = models.CharField(max_length=200, null=True)
     video_file = models.FileField(upload_to="videos/")
-    time = models.DateTimeField(auto_now=True)
+    duration = models.TimeField(auto_now=True)
+    fps = models.IntegerField(null=True, blank=False)
+    frames = models.IntegerField(null=True, blank=False)
+    width = models.IntegerField(null=True, blank=False)
+    height = models.IntegerField(null=True, blank=False)
 
     def save(self, *args, **kwargs):
         if not self.title and self.video_file:
             self.title = os.path.splitext(os.path.basename(self.video_file.name))[0]
-
+        super().save(*args, **kwargs)
+        if self.video_file:
+            self.frames = getVideoUtility.getFrames(self.video_file.path)
+            self.fps = getVideoUtility.getFPS(self.video_file.path)
+            self.duration = getVideoUtility.getDuration(self.video_file.path)
+            self.width, self.height = getVideoUtility.getResolution(self.video_file.path)
+            
         super().save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
@@ -22,7 +33,6 @@ class Video(models.Model):
 class Image(models.Model):
     title = models.CharField(max_length = 20)
     photo = models.ImageField(upload_to="images/")
-    time = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
         if not self.title and self.photo:

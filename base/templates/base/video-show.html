@@ -66,11 +66,16 @@
     {% if videos %}
     <div class="video-collection">
         {% for video in videos %}
-        <div class="video-self">
-            <video controls width="640" height="350">
-                <source src="{{ video.video_file.url }}" type="{{ video.video_file.content_type }}" />
-            </video>
-            <a href="{% url 'delete-video' video.id %}">X</a>
+        <div>
+            <div class="video-self">
+                <video controls width="640" height="350">
+                    <source src="{{ video.video_file.url }}" type="{{ video.video_file.content_type }}" />
+                </video>
+                <a href="{% url 'delete-video' video.id %}">X</a>
+            </div>
+            <p>Video FPS: {{video.fps}}</p>
+            <p>Video Frames: {{video.frames}}</p>
+            <p>Video Resolution: {{video.width}} x {{video.height}}</p>
         </div>
         {% endfor %}
     </div>
