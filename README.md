@@ -1,4 +1,4 @@
-# DM-ClassDesign
+# GreenWorld
 2023数媒基课设
 
 Django+vue
