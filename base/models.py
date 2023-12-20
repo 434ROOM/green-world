@@ -1,9 +1,11 @@
 import os
 from django.db import models
+import uuid
 from .utility import getVideoUtility
 
 # Create your models here.
 class Video(models.Model):
+    id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=200, null=True)
     video_file = models.FileField(upload_to="videos/")
     duration = models.TimeField(auto_now=True)
@@ -15,12 +17,12 @@ class Video(models.Model):
     def save(self, *args, **kwargs):
         if not self.title and self.video_file:
             self.title = os.path.splitext(os.path.basename(self.video_file.name))[0]
-        super().save(*args, **kwargs)
-        if self.video_file:
-            self.frames = getVideoUtility.getFrames(self.video_file.path)
-            self.fps = getVideoUtility.getFPS(self.video_file.path)
-            self.duration = getVideoUtility.getDuration(self.video_file.path)
-            self.width, self.height = getVideoUtility.getResolution(self.video_file.path)
+        # super().save(*args, **kwargs)
+        # if self.video_file:
+        #     self.frames = getVideoUtility.getFrames(self.video_file.path)
+        #     self.fps = getVideoUtility.getFPS(self.video_file.path)
+        #     self.duration = getVideoUtility.getDuration(self.video_file.path)
+        #     self.width, self.height = getVideoUtility.getResolution(self.video_file.path)
             
         super().save(*args, **kwargs)
 
