@@ -5,6 +5,7 @@ from django.db import models
 class Video(models.Model):
     title = models.CharField(max_length=200, null=True)
     video_file = models.FileField(upload_to="videos/")
+    time = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
         if not self.title and self.video_file:
@@ -21,6 +22,7 @@ class Video(models.Model):
 class Image(models.Model):
     title = models.CharField(max_length = 20)
     photo = models.ImageField(upload_to="images/")
+    time = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
         if not self.title and self.photo:
@@ -37,6 +39,7 @@ class Image(models.Model):
 class Audio(models.Model):
     title = models.CharField(max_length=20)
     audio = models.FileField(upload_to='audios/')
+    time = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
         if not self.title and self.audio:
