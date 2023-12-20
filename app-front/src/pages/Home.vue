@@ -1,35 +1,51 @@
 <template>
-    <div>
-        <h1>Home Page</h1>
-        <a-button type="primary" @click="handleClick">Click me!</a-button>
-        <a-modal v-model:open="modalVisible" title="Modal Title">
-            <p>Content of the modal</p>
-            <p>More content...</p>
-        </a-modal>
-    </div>
+    <a-layout>
+        <GW-Navbar />
+        <a-layout-content>
+            <GW-Banner />
+            <GW-Introduction />
+            <GW-OurResearch />
+            <div :style="{ background: '#fff', padding: '24px', minHeight: '1000px' }">
+                Content
+                <br>
+                88888888888
+                <br>
+                88888888888
+                <br>
+                88888888888
+            </div>
+        </a-layout-content>
+        <GW-Footer />
+    </a-layout>
 </template>
 
-<script>
-import { ref } from 'vue';
+<script lang="ts">
+import Navbar from '../components/Navbar.vue';
+import Footer from '../components/Footer.vue';
+import Banner from '../components/Banner.vue';
+import Introduction from '../components/Introduction.vue';
+import OurResearch from '../components/OurResearch.vue';
+
+document.title = '首页 | GreenWorld - 人与自然和谐共生';
+
 export default {
-    setup() {
-        // 使用 ref 创建一个响应式变量，用于控制 Modal 的显示和隐藏
-        const modalVisible = ref(false);
-
-        // 点击按钮时显示 Modal
-        const handleClick = () => {
-            modalVisible.value = true;
-        };
-
-        return {
-            modalVisible,
-            handleClick,
-        };
+    components: {
+        'GW-Navbar': Navbar,
+        'GW-Footer': Footer,
+        'GW-Banner': Banner,
+        'GW-Introduction': Introduction,
+        'GW-OurResearch': OurResearch,
     },
-};
+}
 </script>
-  
-<style>
-/* 样式可根据需要进行修改 */
+
+<style scoped>
+.content {
+    margin-top: 64px;
+    padding: 0;
+}
+
+.site-layout .site-layout-background {
+    background: #fff;
+}
 </style>
-  

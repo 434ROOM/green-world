@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import Test from './pages/test.vue';
-import Home from './pages/home.vue';
+//Pages 文件名要大写
+import Test from './pages/Test.vue';
+import Home from './pages/Home.vue';
 
 const routes = [
   {
