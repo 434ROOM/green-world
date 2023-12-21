@@ -16,11 +16,6 @@ class AddVideoSerializer(serializers.ModelSerializer):
         model = Video
         fields = ['video_file']
 
-    def save_video(self, video_file):
-        saved_video = Video(video_file=video_file)
-        saved_video.save()
-        return saved_video
-
     def save(self, **kwargs):
         instance = Video(**self.validated_data)
         instance.save()
