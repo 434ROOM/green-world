@@ -6,9 +6,12 @@
             </RouterLink>
         </div>
         <a-menu class="menu" v-model:selectedKeys="selectedKeys" theme="light" mode="horizontal">
-            <a-menu-item key="Home">首页</a-menu-item>
-            <a-menu-item key="2">222</a-menu-item>
-            <a-menu-item key="About">关于我们</a-menu-item>
+            <!--注意：下面的key值与router.js中的name值对应，均需首字母大写-->
+            <a-menu-item key="Home"><router-link to="/">首页</router-link></a-menu-item>
+            <a-menu-item key="Video"><router-link to="/video">视频交互</router-link></a-menu-item>
+            <a-menu-item key="Audio"><router-link to="/audio">音频交互</router-link></a-menu-item>
+            <a-menu-item key="Image"><router-link to="/image">图片交互</router-link></a-menu-item>
+            <a-menu-item key="About"><router-link to="/about">关于我们</router-link></a-menu-item>
         </a-menu>
     </a-layout-header>
 </template>
@@ -18,6 +21,7 @@ import { ref } from 'vue';
 
 import defaultSrc from '../assets/images/logo-text.png';
 import hoverSrc from '../assets/images/logo-text-green.png';
+
 const logoSrc = ref(defaultSrc);
 function logoChange(ishover: boolean) {
     logoSrc.value = ishover ? hoverSrc : defaultSrc;
@@ -38,7 +42,6 @@ export default {
     methods: {
         handleScroll() {
             const scrollPosition = window.scrollY;
-
             // 在滚动一定距离后改变导航栏颜色
             if (scrollPosition > 64) { // 假设滚动超过64像素
                 navbarClass.value = 'nav-header scrolled'
