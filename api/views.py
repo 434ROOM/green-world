@@ -5,9 +5,10 @@ from rest_framework.parsers import FormParser, MultiPartParser
 from base.models import Video, Image, Audio
 from .serializers import GetVideoSerializer, ImageSerializer, AudioSerializer, AddVideoSerializer
 from rest_framework.views import APIView
-from base.utility import getVideoUtility
+from rest_framework.renderers import JSONRenderer
 from django.db.models import Q
 import datetime
+import os
 
 @api_view(['GET']) 
 def getVideo(request):
@@ -51,11 +52,15 @@ class addVideo(APIView):
         time = datetime.datetime.now()
 
         if serializer.is_valid():
-            serializer.save()
+            new_video = serializer.save()
+            video_file_name = os.path.splitext(os.path.basename(new_video.video_file.name))[0]
+            new_data = {}
+            new_data.update({"video_file":video_file_name, "frames":new_video.frames, "fps":new_video.fps, "width":new_video.width, "height":new_video.height})
+
             code = status.HTTP_200_OK
             msg = "Video Uploaded Successfully"
 
-            new_dict.update({"code":code, "msg":msg, "time":time, "data":serializer.data})
+            new_dict.update({"code":code, "msg":msg, "time":time, "data":new_data})
             return Response(new_dict, status=status.HTTP_201_CREATED)
         else:
             code = status.HTTP_400_BAD_REQUEST
