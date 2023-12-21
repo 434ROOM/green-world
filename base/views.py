@@ -3,6 +3,7 @@ from .models import Video, Image, Audio
 from .forms import VideoForm, ImageForm, AudioForm
 from .utility import getVideoUtility
 
+
 # Create your views here.
 def home(request):
     return render(request, "base/home.html", {}) 
@@ -12,14 +13,7 @@ def videoShow(request):
         form = VideoForm(request.POST, request.FILES)
         if form.is_valid():
             video = form.save(commit=False)
-
-            url = video.video_file.url
-            video.frames = getVideoUtility.getFrames(url)
-            video.fps = getVideoUtility.getFPS(url)
-            video.duration = getVideoUtility.getDuration(url)
-            video.width, video.height = getVideoUtility.getResolution(url)
             video.save()
-
             return redirect("video")
     else:
         form = VideoForm()

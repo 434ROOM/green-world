@@ -5,42 +5,60 @@ from rest_framework.parsers import FormParser, MultiPartParser
 from base.models import Video, Image, Audio
 from .serializers import GetVideoSerializer, ImageSerializer, AudioSerializer, AddVideoSerializer
 from rest_framework.views import APIView
-from base.utility import getVideoUtility
+from rest_framework.renderers import JSONRenderer
 from django.db.models import Q
 import datetime
+import os
 
-@api_view(['GET']) 
+@api_view(['GET','DELETE']) 
 def getVideo(request):
     new_dict = {}
     msg = ""
     time = datetime.datetime.now()
 
-    q = request.GET.get('title') if request.GET.get('title') else ""
-    id = request.GET.get('id') if request.GET.get('id') else ""
+    if request.method == 'GET':
+        q = request.GET.get('title') if request.GET.get('title') else ""
+        id = request.GET.get('id') if request.GET.get('id') else ""
 
-    if id and q:
-        videos = Video.objects.filter(
-            Q(id=(int)(id)) &
-            Q(title=q)
-        )
-    elif id and not q:
-        videos = Video.objects.filter(
-            Q(id=(int)(id))
-        )
-    else:
-        videos = Video.objects.filter(
-            Q(title__icontains=q)
-        )
+        if id and q:
+            videos = Video.objects.filter(
+                Q(id=(int)(id)) &
+                Q(title=q)
+            )
+        elif id and not q:
+            videos = Video.objects.filter(
+                Q(id=(int)(id))
+            )
+        else:
+            videos = Video.objects.filter(
+                Q(title__icontains=q)
+            )
 
-    code = status.HTTP_200_OK if videos else status.HTTP_400_BAD_REQUEST
-    if code == status.HTTP_200_OK:
-        msg = "Get target video successfully"
-    else: msg = "Unable to acquire the target video"
-    serializer = GetVideoSerializer(videos, many=True)
-    new_dict.update({"code":code, "msg":msg, "time":time, "data":serializer.data})
+        code = status.HTTP_200_OK if videos else status.HTTP_400_BAD_REQUEST
+        if code == status.HTTP_200_OK:
+            msg = "Get target video successfully"
+        else: msg = "Unable to acquire the target video"
+        serializer = GetVideoSerializer(videos, many=True)
+        new_dict.update({"code":code, "msg":msg, "time":time, "data":serializer.data})
 
-    return Response(new_dict)
+        return Response(new_dict)
+    elif request.method == 'DELETE':
+        id = request.GET.get('id') if request.GET.get('id') else ""
 
+        if not id:
+            code = status.HTTP_400_BAD_REQUEST
+            msg = "Please provide valid id value"
+            new_dict.update({"code":code, "msg":msg, "time":time, "data":{}})
+            return Response(new_dict, status=status.HTTP_400_BAD_REQUEST)
+
+        obj = Video.objects.filter(id=(int)(id))
+        obj.delete()
+        code = status.HTTP_200_OK
+        msg = "Video instance successfully deleted"
+        new_dict.update({"code":code, "msg":msg, "time":time, "data":{}})
+        return Response(new_dict, status=status.HTTP_200_OK)
+
+    
 class addVideo(APIView):
     parser_classes = (MultiPartParser, FormParser)
     serializer_class = AddVideoSerializer
@@ -51,11 +69,15 @@ class addVideo(APIView):
         time = datetime.datetime.now()
 
         if serializer.is_valid():
-            serializer.save()
+            new_video = serializer.save()
+            video_file_name = os.path.splitext(os.path.basename(new_video.video_file.name))[0]
+            new_data = {}
+            new_data.update({"video_file":video_file_name, "frames":new_video.frames, "fps":new_video.fps, "width":new_video.width, "height":new_video.height})
+
             code = status.HTTP_200_OK
             msg = "Video Uploaded Successfully"
 
-            new_dict.update({"code":code, "msg":msg, "time":time, "data":serializer.data})
+            new_dict.update({"code":code, "msg":msg, "time":time, "data":new_data})
             return Response(new_dict, status=status.HTTP_201_CREATED)
         else:
             code = status.HTTP_400_BAD_REQUEST
