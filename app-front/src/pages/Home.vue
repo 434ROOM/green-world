@@ -5,15 +5,8 @@
             <GW-Banner />
             <GW-Introduction />
             <GW-OurResearch />
-            <div :style="{ background: '#fff', padding: '24px', minHeight: '1000px' }">
-                Content
-                <br>
-                88888888888
-                <br>
-                88888888888
-                <br>
-                88888888888
-            </div>
+            <GW-Category />
+            <GW-Word />
         </a-layout-content>
         <GW-Footer />
     </a-layout>
@@ -25,6 +18,8 @@ import Footer from '../components/Footer.vue';
 import Banner from '../components/Banner.vue';
 import Introduction from '../components/Introduction.vue';
 import OurResearch from '../components/OurResearch.vue';
+import Category from '../components/Category.vue';
+import Word from '../components/Word.vue';
 
 document.title = '首页 | GreenWorld - 人与自然和谐共生';
 
@@ -35,6 +30,8 @@ export default {
         'GW-Banner': Banner,
         'GW-Introduction': Introduction,
         'GW-OurResearch': OurResearch,
+        'GW-Category': Category,
+        'GW-Word': Word,
     },
 }
 </script>
