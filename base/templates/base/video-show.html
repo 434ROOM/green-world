@@ -73,7 +73,7 @@
                 </video>
                 <a href="{% url 'delete-video' video.id %}">X</a>
             </div>
-
+            <p>Video Duration: {{video.duration}}</p>
             <p>Video FPS: {{video.fps}}</p>
             <p>Video Frames: {{video.frames}}</p>
             <p>Video Resolution: {{video.width}} x {{video.height}}</p>
@@ -84,7 +84,7 @@
     <h2>Try Uploading your first video</h2>
     {% endif %}
 
-    <form action="" method="post" class="upload-form" enctype="multipart/form-data">
+    <form action="" method="post" name="upload" class="upload-form" enctype="multipart/form-data">
         {% csrf_token %}
 
         {{form.as_p}}
