@@ -1,18 +1,16 @@
 import { createRouter, createWebHistory } from 'vue-router';
 //Pages 文件名要大写
-import Test from './pages/Test.vue';
-import Home from './pages/Home.vue';
 
 const routes = [
   {
     path: '/test',
     name: 'Test',
-    component: Test // 定义路由和组件的映射关系
+    component: () => import('./pages/Test.vue') // 路由懒加载
   },
   {
     path:'/',
     name:'Home',
-    component: Home
+    component: () => import('./pages/Home.vue')
   },
   {
     path:'/index',
@@ -21,6 +19,23 @@ const routes = [
   {
     path:'/home',
     redirect:'/'
+  },
+  {
+    path: '/about',
+    name: 'About',
+    component: () => import('./pages/About.vue')
+  },
+  {
+    path: '/video',
+    name: 'Video',
+  },
+  {
+    path: '/audio',
+    name: 'Audio',
+  },
+  {
+    path: '/image',
+    name: 'Image',
   }
   // 其他路由配置...
 ];

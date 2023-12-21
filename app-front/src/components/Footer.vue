@@ -44,9 +44,9 @@
         </a-row>
         <a-typography-paragraph class="link-area copyright">
             <a href="//rxgzs.cn/clause" target="_blank">服务条款</a>
-            |
+            <a-divider type="vertical" />
             <a href="//rxgzs.cn/privacy" target="_blank">隐私政策</a>
-            |
+            <a-divider type="vertical" />
             <a href="https://beian.miit.gov.cn/" target="_blank">京ICP备2023017692号-1</a>
             <br>
             Built with <a href="https://www.djangoproject.com/" target="_blank">Django</a> and <a href="https://vuejs.org/"
