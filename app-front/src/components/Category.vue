@@ -5,31 +5,41 @@
         <a-divider />
         <a-row :gutter="16">
             <a-col :span="8">
-                <a-card hoverable class="card">
-                    <div class="bg video"></div>
-                    <div class="text">
-                        <a-typography-title :level="4">视频交互<ArrowRightOutlined class="icon" /></a-typography-title>
-                        <p>我们通过视频的形式，展示了生态保护的现状，以及我们的项目成果。</p>
-                    </div>
-                </a-card>
+                <router-link to="/video">
+                    <a-card hoverable class="card">
+                        <div class="bg video"></div>
+                        <div class="text">
+                            <a-typography-title :level="4">视频交互
+                                <ArrowRightOutlined class="icon" />
+                            </a-typography-title>
+                            <p>以视频上传为起点，提供全链路的一流视频分析能力，助力生态保护。</p>
+                        </div>
+                    </a-card>
+                </router-link>
             </a-col>
             <a-col :span="8">
-                <a-card hoverable  class="card">
-                    <div class="bg audio"></div>
-                    <div class="text">
-                        <a-typography-title :level="4">音频交互<ArrowRightOutlined class="icon" /></a-typography-title>
-                        <p>我们通过音频的形式，让公众了解生态保护的现状，以及我们的项目成果。</p>
-                    </div>
-                </a-card>
+                <router-link to="/audio">
+                    <a-card hoverable class="card">
+                        <div class="bg audio"></div>
+                        <div class="text">
+                            <a-typography-title :level="4">音频交互
+                                <ArrowRightOutlined class="icon" />
+                            </a-typography-title>
+                            <p>通过音频分析，生成语谱图、波形图等音频资料，为物种研究保驾护航。</p>
+                        </div>
+                    </a-card></router-link>
             </a-col>
             <a-col :span="8">
-                <a-card hoverable  class="card">
-                    <div class="bg image"></div>
-                    <div class="text">
-                        <a-typography-title :level="4">图片交互<ArrowRightOutlined class="icon" /></a-typography-title>
-                        <p>我们通过图片的形式，让公众了解生态保护的现状，以及我们的项目成果。</p>
-                    </div>
-                </a-card>
+                <router-link to="/image">
+                    <a-card hoverable class="card">
+                        <div class="bg image"></div>
+                        <div class="text">
+                            <a-typography-title :level="4">图像交互
+                                <ArrowRightOutlined class="icon" />
+                            </a-typography-title>
+                            <p>采用业界领先的图像分析技术，生成灰度直方图，实现均衡化等操作。</p>
+                        </div>
+                    </a-card></router-link>
             </a-col>
         </a-row>
     </section>

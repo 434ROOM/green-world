@@ -10,7 +10,7 @@
             <a-menu-item key="Home"><router-link to="/">首页</router-link></a-menu-item>
             <a-menu-item key="Video"><router-link to="/video">视频交互</router-link></a-menu-item>
             <a-menu-item key="Audio"><router-link to="/audio">音频交互</router-link></a-menu-item>
-            <a-menu-item key="Image"><router-link to="/image">图片交互</router-link></a-menu-item>
+            <a-menu-item key="Image"><router-link to="/image">图像交互</router-link></a-menu-item>
             <a-menu-item key="About"><router-link to="/about">关于我们</router-link></a-menu-item>
         </a-menu>
     </a-layout-header>
