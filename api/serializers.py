@@ -1,10 +1,5 @@
-import os
-from django.dispatch import receiver
-from django.db.models.signals import post_save
 from rest_framework import serializers
 from base.models import Video, Image, Audio
-from django.core.files.storage import default_storage
-from base.utility import getVideoUtility
 
 class GetVideoSerializer(serializers.ModelSerializer):    
     class Meta:

@@ -1,6 +1,11 @@
-import os, cv2
+import os, cv2, wave, io
 from django.db import models
-from .utility import getVideoUtility
+from .utility import getVideoUtility, getAudioUtility
+import numpy as np
+import matplotlib.pyplot as plt
+import scipy.io.wavfile as wavfile
+from scipy.signal import spectrogram
+from PIL import Image as PILImage
 
 
 # Create your models here.
@@ -125,19 +130,57 @@ class Image(models.Model):
         base_name = os.path.splitext(os.path.basename(self.photo.name))[0]
         return os.path.join(f"images/{folder}", f"{base_name}_{folder}.jpg")
 
+class AudioQuerySet(models.QuerySet):
+    def delete(self):
+        for audio in self:
+            audio.delete_audio()
+        super().delete()
+
 class Audio(models.Model):
     title = models.CharField(max_length=20)
     audio = models.FileField(upload_to='audios/')
-    time = models.DateTimeField(auto_now=True)
+    spectrogram = models.ImageField(upload_to='audios/spectrogram', null=True, blank=True)
+    spectrum_diagram = models.ImageField(upload_to='audios/spectrum_diagram', null=True, blank=True)
 
     def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
         if not self.title and self.audio:
             self.title = os.path.splitext(os.path.basename(self.audio.name))[0]
 
+        sample_rate, data = wavfile.read(self.audio.path)
+        frequencies, times, Sxx = spectrogram(data, fs=sample_rate)
+        Sxx_db = 10 * np.log10(Sxx)
+        normalized_spectrogram = ((Sxx_db - np.min(Sxx_db)) / (np.max(Sxx_db) - np.min(Sxx_db))) * 255
+        normalized_spectrogram = normalized_spectrogram.astype(np.uint8)
+        image = PILImage.fromarray(normalized_spectrogram)
+        
+        # image_io = io.BytesIO()
+        # image.save(image_io, format="PNG")
+        # self.spectrogram.save(f"media/audios/spectrogram/{self.title}_spectrogram.png", image_io)
+
+
+
+
+
+
+
+        # self.spectrogram.name = getAudioUtility.getSpectrogram(self.audio)
+        # self.spectrum_diagram.name = getAudioUtility.getSpectrum_diagram(self.audio)
         super().save(*args, **kwargs)
 
+    def delete_audio(self):
+        # Delete images when the model instance is deleted
+        if os.path.isfile(self.audio.path):
+            os.remove(self.audio.path)
+        self.delete_image(self.spectrogram)
+        self.delete_image(self.spectrum_diagram)
+
+    def delete_image(self, field):
+        if field:
+            file_path = field.path
+            if os.path.isfile(file_path):
+                os.remove(file_path)
+
     def delete(self, *args, **kwargs):
-        if self.audio:
-            if os.path.isfile(self.audio.path):
-                os.remove(self.audio.path)
+        self.delete_audio()
         super().delete(*args, **kwargs)
