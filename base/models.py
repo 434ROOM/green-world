@@ -13,6 +13,7 @@ class Video(models.Model):
     frames = models.IntegerField(null=True, blank=False)
     width = models.IntegerField(null=True, blank=False)
     height = models.IntegerField(null=True, blank=False)
+    cover = models.ImageField(upload_to="video/cover/", blank=True, null=True)
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -30,12 +31,6 @@ class Video(models.Model):
             if os.path.isfile(self.video_file.path):
                 os.remove(self.video_file.path)
         super().delete(*args, **kwargs)
-
-class Image(models.Model):
-    title = models.CharField(max_length = 20)
-    photo = models.ImageField(upload_to="images/")
-    GrayScale = models.ImageField(upload_to="images/grayscale/", blank=True, null=True)
-    Normalization = models.ImageField(upload_to="images/normalization/", blank=True, null=True)
 
 class Image(models.Model):
     title = models.CharField(max_length=20)
@@ -82,7 +77,7 @@ class Image(models.Model):
             grayscale_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
             grayscale_path = self.get_image_path("grayscale")
             cv2.imwrite(grayscale_path, grayscale_image)
-            return grayscale_path
+            return self.get_image_url("grayscale")
 
     def generate_normalization(self):
         # Generate and save normalized image using OpenCV
@@ -95,13 +90,17 @@ class Image(models.Model):
             # Save the normalized image
             normalization_path = self.get_image_path("normalization")
             cv2.imwrite(normalization_path, normalized_image)
-            return normalization_path
+            return self.get_image_url("normalization")
 
     def get_image_path(self, folder):
         # Create a unique path for the image based on the folder (grayscale or normalization)
         base_name = os.path.splitext(os.path.basename(self.photo.name))[0]
         base_dir = os.path.dirname(self.photo.path)
         return os.path.join(f"{base_dir}/{folder}/", f"{base_name}_{folder}.jpg")
+    
+    def get_image_url(self, folder):
+        base_name = os.path.splitext(os.path.basename(self.photo.name))[0]
+        return os.path.join(f"images/{folder}", f"{base_name}_{folder}.jpg")
 
 class Audio(models.Model):
     title = models.CharField(max_length=20)
