@@ -5,44 +5,72 @@ const routes = [
   {
     path: '/test',
     name: 'Test',
+    meta: {
+      title: '测试'
+    },
     component: () => import('./pages/Test.vue') // 路由懒加载
   },
   {
-    path:'/',
-    name:'Home',
+    path: '/',
+    name: 'Home',
+    meta: {
+      title: '首页'
+    },
     component: () => import('./pages/Home.vue')
   },
   {
-    path:'/index',
-    redirect:'/'
+    path: '/index',
+    redirect: '/',
   },
   {
-    path:'/home',
-    redirect:'/'
+    path: '/home',
+    redirect: '/',
   },
   {
     path: '/about',
     name: 'About',
+    meta: {
+      title: '关于我们'
+    },
     component: () => import('./pages/About.vue')
   },
   {
     path: '/video',
     name: 'Video',
+    meta: {
+      title: '视频交互'
+    },
   },
   {
     path: '/audio',
     name: 'Audio',
+    meta: {
+      title: '音频交互'
+    },
   },
   {
     path: '/image',
     name: 'Image',
+    meta: {
+      title: '图片交互'
+    },
   }
-  // 其他路由配置...
 ];
 
 const router = createRouter({
   history: createWebHistory(),
-  routes
+  routes,
+  scrollBehavior(to, from, savedPosition) {
+    return { top: 0 }; // 滚动到页面顶部
+  }
+});
+
+// 路由守卫
+router.beforeEach((to, from) => {
+  // 设置页面标题
+  let wholeTitle = to.meta.title + " | GreenWorld - 人与自然和谐共生";
+  document.title = wholeTitle;
+  return true;
 });
 
 export default router;
