@@ -4,6 +4,13 @@ from .utility import getVideoUtility
 
 
 # Create your models here.
+
+class VideoQuerySet(models.QuerySet):
+    def delete(self):
+        for video in self:
+            video.delete_file()
+        super().delete()
+
 class Video(models.Model):
     id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=200, null=True)
@@ -13,6 +20,9 @@ class Video(models.Model):
     frames = models.IntegerField(null=True, blank=False)
     width = models.IntegerField(null=True, blank=False)
     height = models.IntegerField(null=True, blank=False)
+    cover = models.ImageField(upload_to="videos/cover/", blank=True, null=True)
+
+    objects = VideoQuerySet.as_manager()
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -22,26 +32,37 @@ class Video(models.Model):
             self.fps = getVideoUtility.getFPS(self.video_file.path)
             self.duration = getVideoUtility.getDuration(self.video_file.path)
             self.width, self.height = getVideoUtility.getResolution(self.video_file.path)
+            self.cover.name = getVideoUtility.getCover(self.video_file.path, self.video_file.name)
             
         super().save(*args, **kwargs)
 
-    def delete(self, *args, **kwargs):
+    def delete_file(self):
         if self.video_file:
             if os.path.isfile(self.video_file.path):
                 os.remove(self.video_file.path)
+        if self.cover:
+            if os.path.isfile(self.cover.path):
+                os.remove(self.cover.path)
+
+    def delete(self, *args, **kwargs):
+        self.delete_file()
         super().delete(*args, **kwargs)
 
-class Image(models.Model):
-    title = models.CharField(max_length = 20)
-    photo = models.ImageField(upload_to="images/")
-    GrayScale = models.ImageField(upload_to="images/grayscale/", blank=True, null=True)
-    Normalization = models.ImageField(upload_to="images/normalization/", blank=True, null=True)
+class ImageQuerySet(models.QuerySet):
+    def delete(self):
+        for img in self:
+            img.delete_image(img.photo)
+            img.delete_image(img.grayscale)
+            img.delete_image(img.normalization)
+        super().delete()
 
 class Image(models.Model):
     title = models.CharField(max_length=20)
     photo = models.ImageField(upload_to="images/")
     grayscale = models.ImageField(upload_to="images/grayscale/", blank=True, null=True)
     normalization = models.ImageField(upload_to="images/normalization/", blank=True, null=True)
+
+    objects = ImageQuerySet.as_manager()
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -50,13 +71,11 @@ class Image(models.Model):
 
         # Generate and save grayscale image
         if self.photo and not self.grayscale:
-            grayscale_path = self.generate_grayscale()
-            self.grayscale.name = grayscale_path
+            self.grayscale.name = self.generate_grayscale()
 
         # Generate and save normalized image
         if self.photo and not self.normalization:
-            normalization_path = self.generate_normalization()
-            self.normalization.name = normalization_path
+            self.normalization.name = self.generate_normalization()
 
         super().save(*args, **kwargs)
 
@@ -68,7 +87,6 @@ class Image(models.Model):
         super().delete(*args, **kwargs)
 
     def delete_image(self, field):
-        # Delete the image file if it exists
         if field:
             file_path = field.path
             if os.path.isfile(file_path):
@@ -82,7 +100,7 @@ class Image(models.Model):
             grayscale_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
             grayscale_path = self.get_image_path("grayscale")
             cv2.imwrite(grayscale_path, grayscale_image)
-            return grayscale_path
+            return self.get_image_url("grayscale")
 
     def generate_normalization(self):
         # Generate and save normalized image using OpenCV
@@ -95,13 +113,17 @@ class Image(models.Model):
             # Save the normalized image
             normalization_path = self.get_image_path("normalization")
             cv2.imwrite(normalization_path, normalized_image)
-            return normalization_path
+            return self.get_image_url("normalization")
 
     def get_image_path(self, folder):
         # Create a unique path for the image based on the folder (grayscale or normalization)
         base_name = os.path.splitext(os.path.basename(self.photo.name))[0]
         base_dir = os.path.dirname(self.photo.path)
         return os.path.join(f"{base_dir}/{folder}/", f"{base_name}_{folder}.jpg")
+    
+    def get_image_url(self, folder):
+        base_name = os.path.splitext(os.path.basename(self.photo.name))[0]
+        return os.path.join(f"images/{folder}", f"{base_name}_{folder}.jpg")
 
 class Audio(models.Model):
     title = models.CharField(max_length=20)
