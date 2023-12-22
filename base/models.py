@@ -128,7 +128,8 @@ class Image(models.Model):
 class Audio(models.Model):
     title = models.CharField(max_length=20)
     audio = models.FileField(upload_to='audios/')
-    time = models.DateTimeField(auto_now=True)
+    spectrogram = models.ImageField(upload_to='audios/spectrogram')
+    
 
     def save(self, *args, **kwargs):
         if not self.title and self.audio:
