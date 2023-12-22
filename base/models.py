@@ -4,6 +4,13 @@ from .utility import getVideoUtility
 
 
 # Create your models here.
+
+class VideoQuerySet(models.QuerySet):
+    def delete(self):
+        for video in self:
+            video.delete_file()
+        super().delete()
+
 class Video(models.Model):
     id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=200, null=True)
@@ -14,6 +21,8 @@ class Video(models.Model):
     width = models.IntegerField(null=True, blank=False)
     height = models.IntegerField(null=True, blank=False)
     cover = models.ImageField(upload_to="video/cover/", blank=True, null=True)
+
+    objects = VideoQuerySet.as_manager()
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -26,17 +35,30 @@ class Video(models.Model):
             
         super().save(*args, **kwargs)
 
-    def delete(self, *args, **kwargs):
+    def delete_file(self):
         if self.video_file:
             if os.path.isfile(self.video_file.path):
                 os.remove(self.video_file.path)
+
+    def delete(self, *args, **kwargs):
+        self.delete_file()
         super().delete(*args, **kwargs)
+
+class ImageQuerySet(models.QuerySet):
+    def delete(self):
+        for img in self:
+            img.delete_image(img.photo)
+            img.delete_image(img.grayscale)
+            img.delete_image(img.normalization)
+        super().delete()
 
 class Image(models.Model):
     title = models.CharField(max_length=20)
     photo = models.ImageField(upload_to="images/")
     grayscale = models.ImageField(upload_to="images/grayscale/", blank=True, null=True)
     normalization = models.ImageField(upload_to="images/normalization/", blank=True, null=True)
+
+    objects = ImageQuerySet.as_manager()
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -63,7 +85,6 @@ class Image(models.Model):
         super().delete(*args, **kwargs)
 
     def delete_image(self, field):
-        # Delete the image file if it exists
         if field:
             file_path = field.path
             if os.path.isfile(file_path):
