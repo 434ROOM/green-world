@@ -2,10 +2,13 @@ import os, cv2, wave, io
 from django.db import models
 from .utility import getVideoUtility, getAudioUtility
 import numpy as np
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import scipy.io.wavfile as wavfile
 from scipy.signal import spectrogram
 from PIL import Image as PILImage
+from pathlib import Path
 
 
 # Create your models here.
@@ -124,6 +127,10 @@ class Image(models.Model):
         # Create a unique path for the image based on the folder (grayscale or normalization)
         base_name = os.path.splitext(os.path.basename(self.photo.name))[0]
         base_dir = os.path.dirname(self.photo.path)
+
+        data_folder = Path(base_dir/folder)
+        data_name = Path(base_name/folder)
+
         return os.path.join(f"{base_dir}/{folder}/", f"{base_name}_{folder}.jpg")
     
     def get_image_url(self, folder):
@@ -146,30 +153,11 @@ class Audio(models.Model):
         super().save(*args, **kwargs)
         if not self.title and self.audio:
             self.title = os.path.splitext(os.path.basename(self.audio.name))[0]
+        self.spectrogram.name = getAudioUtility.getSpectrogram(self.audio)
 
-        sample_rate, data = wavfile.read(self.audio.path)
-        frequencies, times, Sxx = spectrogram(data, fs=sample_rate)
-        Sxx_db = 10 * np.log10(Sxx)
-        normalized_spectrogram = ((Sxx_db - np.min(Sxx_db)) / (np.max(Sxx_db) - np.min(Sxx_db))) * 255
-        normalized_spectrogram = normalized_spectrogram.astype(np.uint8)
-        image = PILImage.fromarray(normalized_spectrogram)
-        
-        # image_io = io.BytesIO()
-        # image.save(image_io, format="PNG")
-        # self.spectrogram.save(f"media/audios/spectrogram/{self.title}_spectrogram.png", image_io)
-
-
-
-
-
-
-
-        # self.spectrogram.name = getAudioUtility.getSpectrogram(self.audio)
-        # self.spectrum_diagram.name = getAudioUtility.getSpectrum_diagram(self.audio)
         super().save(*args, **kwargs)
 
     def delete_audio(self):
-        # Delete images when the model instance is deleted
         if os.path.isfile(self.audio.path):
             os.remove(self.audio.path)
         self.delete_image(self.spectrogram)
