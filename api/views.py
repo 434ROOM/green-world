@@ -43,19 +43,23 @@ def getVideo(request):
         return Response(new_dict)
     elif request.method == 'DELETE':
         id = request.GET.get('id') if request.GET.get('id') else ""
+        if id:
+            video = Video.objects.filter(
+                Q(id=(int)(id))
+            )
 
-        if not id:
-            code = status.HTTP_400_BAD_REQUEST
+        if not id or not video:
+            code = status.HTTP_404_NOT_FOUND
             msg = "Please provide valid id value"
             new_dict.update({"code":code, "msg":msg, "time":time, "data":{}})
-            return Response(new_dict, status=status.HTTP_400_BAD_REQUEST)
-
-        obj = Video.objects.filter(id=(int)(id))
-        obj.delete()
-        code = status.HTTP_200_OK
-        msg = "Video instance successfully deleted"
-        new_dict.update({"code":code, "msg":msg, "time":time, "data":{}})
-        return Response(new_dict, status=status.HTTP_200_OK)
+            return Response(new_dict, status=status.HTTP_404_NOT_FOUND)
+        else:
+            obj = Video.objects.filter(id=(int)(id))
+            obj.delete()
+            code = status.HTTP_200_OK
+            msg = "Video instance successfully deleted"
+            new_dict.update({"code":code, "msg":msg, "time":time, "data":{}})
+            return Response(new_dict, status=status.HTTP_200_OK)
 
     
 class addVideo(APIView):
@@ -126,12 +130,15 @@ def getImage(request):
         return Response(new_dict, status=status.HTTP_200_OK)
     elif request.method == 'DELETE':
         id = request.GET.get('id') if request.GET.get('id') else ""
+        img = Image.objects.filter(
+            Q(id=(int)(id))
+        )
 
-        if not id:
-            code = status.HTTP_400_BAD_REQUEST
+        if not id or not img:
+            code = status.HTTP_404_NOT_FOUND
             msg = "Please provide valid id value"
             new_dict.update({"code":code, "msg":msg, "time":time, "data":{}})
-            return Response(new_dict, status=status.HTTP_400_BAD_REQUEST)
+            return Response(new_dict, status=status.HTTP_404_NOT_FOUND)
 
         obj = Image.objects.filter(id=(int)(id))
         obj.delete()
