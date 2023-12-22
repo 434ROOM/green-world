@@ -135,8 +135,6 @@ import {
     YuqueFilled,
 } from '@ant-design/icons-vue';
 
-document.title = '关于我们 | GreenWorld - 人与自然和谐共生';
-
 export default {
     components: {
         'GW-Navbar': Navbar,
