@@ -20,7 +20,7 @@ class Video(models.Model):
     frames = models.IntegerField(null=True, blank=False)
     width = models.IntegerField(null=True, blank=False)
     height = models.IntegerField(null=True, blank=False)
-    cover = models.ImageField(upload_to="video/cover/", blank=True, null=True)
+    cover = models.ImageField(upload_to="videos/cover/", blank=True, null=True)
 
     objects = VideoQuerySet.as_manager()
 
@@ -32,6 +32,7 @@ class Video(models.Model):
             self.fps = getVideoUtility.getFPS(self.video_file.path)
             self.duration = getVideoUtility.getDuration(self.video_file.path)
             self.width, self.height = getVideoUtility.getResolution(self.video_file.path)
+            self.cover.name = getVideoUtility.getCover(self.video_file.path, self.video_file.name)
             
         super().save(*args, **kwargs)
 
@@ -39,6 +40,9 @@ class Video(models.Model):
         if self.video_file:
             if os.path.isfile(self.video_file.path):
                 os.remove(self.video_file.path)
+        if self.cover:
+            if os.path.isfile(self.cover.path):
+                os.remove(self.cover.path)
 
     def delete(self, *args, **kwargs):
         self.delete_file()
@@ -67,13 +71,11 @@ class Image(models.Model):
 
         # Generate and save grayscale image
         if self.photo and not self.grayscale:
-            grayscale_path = self.generate_grayscale()
-            self.grayscale.name = grayscale_path
+            self.grayscale.name = self.generate_grayscale()
 
         # Generate and save normalized image
         if self.photo and not self.normalization:
-            normalization_path = self.generate_normalization()
-            self.normalization.name = normalization_path
+            self.normalization.name = self.generate_normalization()
 
         super().save(*args, **kwargs)
 

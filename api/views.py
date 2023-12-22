@@ -71,7 +71,16 @@ class addVideo(APIView):
             new_video = serializer.save()
             video_file_name = os.path.splitext(os.path.basename(new_video.video_file.name))[0]
             new_data = {}
-            new_data.update({"id":new_video.id, "title":video_file_name, "video_file":new_video.video_file.url, "duration":new_video.duration,"frames":new_video.frames, "fps":new_video.fps, "width":new_video.width, "height":new_video.height})
+            new_data.update({"id":new_video.id,
+                             "title":video_file_name,
+                             "video_file":new_video.video_file.url,
+                             "duration":new_video.duration,
+                             "frames":new_video.frames,
+                             "fps":new_video.fps,
+                             "width":new_video.width,
+                             "height":new_video.height,
+                             "cover":new_video.cover.url
+                            })
 
             code = status.HTTP_200_OK
             msg = "Video Uploaded Successfully"
