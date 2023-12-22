@@ -8,7 +8,9 @@ import matplotlib.pyplot as plt
 import scipy.io.wavfile as wavfile
 from scipy.signal import spectrogram
 from PIL import Image as PILImage
-from pathlib import Path
+from pathlib import Path, PurePosixPath
+import platform
+from django.conf import settings
 
 
 # Create your models here.
@@ -104,8 +106,9 @@ class Image(models.Model):
         # Generate and save grayscale image
         if self.photo:
             original_image_path = self.photo.path
-            original_image = cv2.imread(original_image_path)
-            grayscale_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
+            img = cv2.imdecode(np.fromfile(original_image_path, dtype=np.uint8), -1)
+
+            grayscale_image = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
             grayscale_path = self.get_image_path("grayscale")
             cv2.imwrite(grayscale_path, grayscale_image)
             return self.get_image_url("grayscale")
@@ -114,10 +117,9 @@ class Image(models.Model):
         # Generate and save normalized image using OpenCV
         if self.photo:
             original_image_path = self.photo.path
-            # Read the image using OpenCV
-            original_image = cv2.imread(original_image_path, cv2.IMREAD_UNCHANGED)
+            img = cv2.imdecode(np.fromfile(original_image_path, dtype=np.uint8), -1)
             # Normalize the image
-            normalized_image = cv2.normalize(original_image, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX)
+            normalized_image = cv2.normalize(img, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX)
             # Save the normalized image
             normalization_path = self.get_image_path("normalization")
             cv2.imwrite(normalization_path, normalized_image)
@@ -127,10 +129,6 @@ class Image(models.Model):
         # Create a unique path for the image based on the folder (grayscale or normalization)
         base_name = os.path.splitext(os.path.basename(self.photo.name))[0]
         base_dir = os.path.dirname(self.photo.path)
-
-        data_folder = Path(base_dir/folder)
-        data_name = Path(base_name/folder)
-
         return os.path.join(f"{base_dir}/{folder}/", f"{base_name}_{folder}.jpg")
     
     def get_image_url(self, folder):
