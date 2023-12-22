@@ -21,8 +21,6 @@ import OurResearch from '../components/OurResearch.vue';
 import Category from '../components/Category.vue';
 import Word from '../components/Word.vue';
 
-document.title = '首页 | GreenWorld - 人与自然和谐共生';
-
 export default {
     components: {
         'GW-Navbar': Navbar,
