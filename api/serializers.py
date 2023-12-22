@@ -21,10 +21,20 @@ class AddVideoSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
     
-class ImageSerializer(serializers.ModelSerializer):
+class GetImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Image
         fields = '__all__'
+
+class AddImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Image
+        fields = ['photo']
+    
+    def save(self, **kwargs):
+        instance = Image(**self.validated_data)
+        instance.save()
+        return instance
 
 class AudioSerializer(serializers.ModelSerializer):
     class Meta:
