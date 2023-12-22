@@ -52,8 +52,17 @@ const routes = [
     path: '/image',
     name: 'Image',
     meta: {
-      title: '图片交互'
+      title: '图像交互'
     },
+    component: () => import('./pages/Image.vue')
+  },
+  {
+    path: '/image/lib',
+    name: 'ImageLib',
+    meta: {
+      title: '图像库'
+    },
+    component: () => import('./pages/ImageLib.vue')
   }
 ];
 
