@@ -167,7 +167,7 @@ class addImage(APIView):
                              "normalization":new_image.normalization.url
                             })
             
-            code = status.HTTP_200_OK
+            code = status.HTTP_201_CREATED
             msg = "Video Uploaded Successfully"
 
             new_dict.update({"code":code, "msg":msg, "time":time, "data":new_data})
