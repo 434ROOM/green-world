@@ -7,10 +7,10 @@
                     <a-card hoverable class="card">
                         <img src="../assets/images/interacteion/icon-upload.png" alt="">
                         <div class="text-area">
-                            <a-typography-title :level="5" class="title"> 还没有图像？</a-typography-title>
-                            <p>请前往图像库上传一张，然后开始吧！</p>
+                            <a-typography-title :level="5" class="title"> 还没有视频？</a-typography-title>
+                            <p>请前往视频库上传一个，然后开始吧！</p>
                             <a-button type="primary" class="btn">
-                                <router-link to="/image/lib">去上传</router-link>
+                                <router-link to="/video/lib">去上传</router-link>
                             </a-button>
                         </div>
                     </a-card>
@@ -19,23 +19,23 @@
                     <a-card hoverable class="card">
                         <img src="../assets/images/interacteion/icon-select.png" alt="">
                         <div class="text-area">
-                            <a-typography-title :level="5" class="title">已有图像？</a-typography-title>
-                            <p>从您已上传的图像库中选择一张图像。</p>
-                            <a-button type="primary" class="btn" @click="openImageSelector">选一张</a-button>
+                            <a-typography-title :level="5" class="title">已有视频？</a-typography-title>
+                            <p>从您已上传的视频库中选择一个视频。</p>
+                            <a-button type="primary" class="btn" @click="openVideoSelector">选一个</a-button>
 
-                            <a-modal v-model:open="open" title="选择图像" @ok="selectImage">
+                            <a-modal v-model:open="open" title="选择视频" @ok="selectVideo">
                                 <template #footer>
                                     <a-button key="back" @click="closeSelector">取消</a-button>
-                                    <a-button key="submit" type="primary" @click="selectImage" :disabled="!isSelect">
+                                    <a-button key="submit" type="primary" @click="selectVideo" :disabled="!isSelect">
                                         确定
                                     </a-button>
                                 </template>
 
                                 <a-select class="selector" :loading="isLoadding" @change="handleChange"
-                                    placeholder="请选择一张图像" optionLabelProp="name">
-                                    <a-select-option v-for="image in imageList" :value="image.uid" :name="image.name">
-                                        <img class="selector-img" :src="image.url" :alt="image.name" />
-                                        <span style="margin-left: 10px">{{ image.name }}</span>
+                                    placeholder="请选择一个视频" optionLabelProp="name">
+                                    <a-select-option v-for="video in videoList" :value="video.uid" :name="video.name">
+                                        <img class="selector-video" :src="video.cover" :alt="video.name" />
+                                        <span style="margin-left: 10px">{{ video.name }}</span>
                                     </a-select-option>
                                 </a-select>
 
@@ -50,33 +50,40 @@
         <div v-if="current == 1">
             <div class="waiting">
                 <a-spin :indicator="indicator" />
-                <p style="margin-top: 2rem;">图像处理中，请稍后...</p>
+                <p style="margin-top: 2rem;">视频处理中，请稍后...</p>
             </div>
         </div>
 
         <div v-if="current == 2">
-            <a-result status="success" title="图像分析成功！"
-                sub-title="请在下方查看结果，或重新开始选择另一张图像。">
+            <a-result status="success" title="视频分析成功！" sub-title="请在下方查看结果，或重新开始选择另一个视频。">
                 <template #extra>
                     <a-button type="primary" @click="restart">重新开始</a-button>
                 </template>
             </a-result>
 
-            <a-descriptions :title="imageInfo.title + ' 处理结果'" bordered
+            <a-descriptions :title="videoInfo.title + ' 处理结果'" bordered
                 :column="{ xxl: 2, xl: 2, lg: 2, md: 2, sm: 2, xs: 1 }">
-                <a-descriptions-item label="文件名">{{ imageInfo.title }}</a-descriptions-item>
-                <a-descriptions-item label="文件 id">{{ imageInfo.id }}</a-descriptions-item>
-                <a-descriptions-item label="原始图像">
-                    <a-image width="200px" :src="imageInfo.photo"></a-image>
+                <a-descriptions-item label="文件名">{{ videoInfo.title }}</a-descriptions-item>
+                <a-descriptions-item label="文件 id">{{ videoInfo.id }}</a-descriptions-item>
+                <a-descriptions-item label="视频时长">{{ videoInfo.duration }}</a-descriptions-item>
+                <a-descriptions-item label="帧率">{{ videoInfo.fps }}</a-descriptions-item>
+                <a-descriptions-item label="总帧数">{{ videoInfo.frames }}</a-descriptions-item>
+                <a-descriptions-item label="视频宽度">{{ videoInfo.width }}</a-descriptions-item>
+                <a-descriptions-item label="视频高度">{{ videoInfo.height }}</a-descriptions-item>
+                <a-descriptions-item label="视频封面">
+                    <a-image width="200px" :src="videoInfo.cover"></a-image>
                 </a-descriptions-item>
-                <a-descriptions-item label="灰度直方图">
-                    <a-image width="200px" :src="imageInfo.grayscale"></a-image>
-                </a-descriptions-item>
-                <a-descriptions-item label="归一化直方图">
-                    <a-image width="200px" :src="imageInfo.normalization"></a-image>
+                <a-descriptions-item label="视频文件">
+                    <a-button type="primary" @click="videoPreview">查看视频</a-button>
+                    <a-modal :open="isOpenVideo" :title="videoList.title ? videoList.title : 'null'" :footer="null"
+                        @cancel="closeVideoReview">
+                        <video width="100%" controls style="margin-top: 1rem;">
+                            <source :src="videoInfo.video_file">
+                            您的浏览器不支持 HTML5 video 标签。
+                        </video>
+                    </a-modal>
                 </a-descriptions-item>
             </a-descriptions>
-
         </div>
 
     </div>
@@ -102,8 +109,8 @@ const isLoadding = ref(false);
 const open = ref(false);
 const isSelect = ref(false);
 
-function openImageSelector() {
-    getImageList();
+function openVideoSelector() {
+    getVideoList();
     isSelect.value = false;
     open.value = true;
 }
@@ -119,33 +126,36 @@ function handleChange(value) {
     //console.log(selectedId.value);
 }
 
-function selectImage() {
+function selectVideo() {
     open.value = false;
     stepNext();
     setTimeout(() => {
-        requestImageInfo(selectedId.value);
+        requestVideoInfo(selectedId.value);
     }, 3000);
 }
 
-const imageInfo = ref({});
-function requestImageInfo(id) {
+const videoInfo = ref({});
+function requestVideoInfo(id) {
     axios({
         method: 'get',
-        url: Server.apiUrl + '/image?id=' + id,
+        url: Server.apiUrl + '/video?id=' + id,
         accept: 'application/json',
     })
         .then((res) => {
             if (res.data.code === 200) {
                 message.success("请求成功！");
-                const newImageInfo = {
+                const newVideoInfo = {
                     id: res.data.data[0].id,
                     title: res.data.data[0].title,
-                    photo: Server.url + res.data.data[0].photo,
-                    grayscale: Server.url + res.data.data[0].grayscale,
-                    normalization: Server.url + res.data.data[0].normalization,
+                    video_file: Server.url + res.data.data[0].video_file,
+                    duration: res.data.data[0].duration,
+                    fps: res.data.data[0].fps,
+                    frames: res.data.data[0].frames,
+                    width: res.data.data[0].width,
+                    height: res.data.data[0].height,
+                    cover: Server.url + res.data.data[0].cover,
                 };
-                imageInfo.value = newImageInfo;
-                //console.log(imageInfo.value);
+                videoInfo.value = newVideoInfo;
                 stepNext();
             } else {
                 throw new Error(res.data.code + " " + res.data.msg); // 抛出一个错误，进入到 catch 中
@@ -162,13 +172,13 @@ function requestImageInfo(id) {
         });
 }
 
-const imageList = ref([]);
-function getImageList() {
-    const getLoading = message.loading('图像列表加载中...', 0);
+const videoList = ref([]);
+function getVideoList() {
+    const getLoading = message.loading('视频列表加载中...', 0);
     isLoadding.value = true;
     axios({
         method: 'get',
-        url: Server.apiUrl + '/image',
+        url: Server.apiUrl + '/video',
         accept: 'application/json',
     })
         .then((res) => {
@@ -178,14 +188,14 @@ function getImageList() {
                     newlist.push({
                         uid: res.data.data[i].id,
                         name: res.data.data[i].title,
-                        status: 'done',
-                        url: Server.url + res.data.data[i].photo,
+                        cover: Server.url + res.data.data[i].cover,
                     });
                 }
-                imageList.value = newlist;
+                console.log(newlist);
+                videoList.value = newlist;
                 getLoading(); // 关闭 loading message
                 isLoadding.value = false;
-                message.success("图像列表加载完成！");
+                message.success("视频列表加载完成！");
             } else {
                 throw new Error(res.data.code + " " + res.data.msg); // 抛出一个错误，进入到 catch 中
             }
@@ -214,16 +224,26 @@ const stepPrev = () => {
 
 const steps = [
     {
-        title: '选择图像',
+        title: '选择视频',
     },
     {
-        title: '处理图像',
+        title: '处理视频',
     },
     {
         title: '输出结果',
     },
 ];
 const items = steps.map(item => ({ key: item.title, title: item.title }));
+
+// 视频预览
+const isOpenVideo = ref(false);
+function videoPreview() {
+    isOpenVideo.value = true;
+}
+
+function closeVideoReview() {
+    isOpenVideo.value = false;
+}
 </script>
 
 
@@ -283,7 +303,7 @@ const items = steps.map(item => ({ key: item.title, title: item.title }));
     margin: 2rem auto;
 }
 
-.selector-img {
+.selector-video {
     width: 50px;
     height: 50px;
     object-fit: cover;

@@ -1,5 +1,5 @@
 <template>
-    <a-layout-sider class="sider" breakpoint="lg" collapsed-width="0">
+    <a-layout-sider class="sider" breakpoint="lg" collapsed-width="0" :style="{ position: 'fixed' }">
         <a-menu v-model:selectedKeys="selectedKeys" v-model:openKeys="openKeys" mode="inline" class="menu">
             <a-sub-menu key="VideoIndex">
                 <template #title>
@@ -127,8 +127,9 @@ export default {
 
 <style scoped>
 .sider {
+    display: fixed;
     width: 200px;
-    height: 100%;
+    height: calc(100vh - 64px);
     background: #fff;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1)
 }

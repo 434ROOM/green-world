@@ -7,10 +7,10 @@
                     <a-card hoverable class="card">
                         <img src="../assets/images/interacteion/icon-upload.png" alt="">
                         <div class="text-area">
-                            <a-typography-title :level="5" class="title"> 还没有图像？</a-typography-title>
-                            <p>请前往图像库上传一张，然后开始吧！</p>
+                            <a-typography-title :level="5" class="title"> 还没有音频？</a-typography-title>
+                            <p>请前往音频库上传一个，然后开始吧！</p>
                             <a-button type="primary" class="btn">
-                                <router-link to="/image/lib">去上传</router-link>
+                                <router-link to="/audio/lib">去上传</router-link>
                             </a-button>
                         </div>
                     </a-card>
@@ -19,26 +19,24 @@
                     <a-card hoverable class="card">
                         <img src="../assets/images/interacteion/icon-select.png" alt="">
                         <div class="text-area">
-                            <a-typography-title :level="5" class="title">已有图像？</a-typography-title>
-                            <p>从您已上传的图像库中选择一张图像。</p>
-                            <a-button type="primary" class="btn" @click="openImageSelector">选一张</a-button>
+                            <a-typography-title :level="5" class="title">已有音频？</a-typography-title>
+                            <p>从您已上传的音频库中选择一个音频。</p>
+                            <a-button type="primary" class="btn" @click="openAudioSelector">选一个</a-button>
 
-                            <a-modal v-model:open="open" title="选择图像" @ok="selectImage">
+                            <a-modal v-model:open="open" title="选择音频" @ok="selectAudio">
                                 <template #footer>
                                     <a-button key="back" @click="closeSelector">取消</a-button>
-                                    <a-button key="submit" type="primary" @click="selectImage" :disabled="!isSelect">
+                                    <a-button key="submit" type="primary" @click="selectAudio" :disabled="!isSelect">
                                         确定
                                     </a-button>
                                 </template>
 
                                 <a-select class="selector" :loading="isLoadding" @change="handleChange"
-                                    placeholder="请选择一张图像" optionLabelProp="name">
-                                    <a-select-option v-for="image in imageList" :value="image.uid" :name="image.name">
-                                        <img class="selector-img" :src="image.url" :alt="image.name" />
-                                        <span style="margin-left: 10px">{{ image.name }}</span>
+                                    placeholder="请选择一个音频" optionLabelProp="name">
+                                    <a-select-option v-for="audio in audioList" :value="audio.uid" :name="audio.name">
+                                        <span style="margin-left: 10px">{{ audio.name }}</span>
                                     </a-select-option>
                                 </a-select>
-
                             </a-modal>
 
                         </div>
@@ -50,31 +48,29 @@
         <div v-if="current == 1">
             <div class="waiting">
                 <a-spin :indicator="indicator" />
-                <p style="margin-top: 2rem;">图像处理中，请稍后...</p>
+                <p style="margin-top: 2rem;">音频处理中，请稍后...</p>
             </div>
         </div>
 
         <div v-if="current == 2">
-            <a-result status="success" title="图像分析成功！"
-                sub-title="请在下方查看结果，或重新开始选择另一张图像。">
+            <a-result status="success" title="音频分析成功！"
+                sub-title="请在下方查看结果，或重新开始选择另一个音频。">
                 <template #extra>
                     <a-button type="primary" @click="restart">重新开始</a-button>
                 </template>
             </a-result>
 
-            <a-descriptions :title="imageInfo.title + ' 处理结果'" bordered
+            <a-descriptions :title="audioInfo.title + ' 处理结果'" bordered
                 :column="{ xxl: 2, xl: 2, lg: 2, md: 2, sm: 2, xs: 1 }">
-                <a-descriptions-item label="文件名">{{ imageInfo.title }}</a-descriptions-item>
-                <a-descriptions-item label="文件 id">{{ imageInfo.id }}</a-descriptions-item>
-                <a-descriptions-item label="原始图像">
-                    <a-image width="200px" :src="imageInfo.photo"></a-image>
+                <a-descriptions-item label="文件名">{{ audioInfo.title }}</a-descriptions-item>
+                <a-descriptions-item label="文件 id">{{ audioInfo.id }}</a-descriptions-item>
+                <a-descriptions-item label="创建时间">{{ audioInfo.created }}</a-descriptions-item>
+                <a-descriptions-item label="原始音频">
+                    <audio :src="audioInfo.audio" controls></audio>
                 </a-descriptions-item>
-                <a-descriptions-item label="灰度直方图">
-                    <a-image width="200px" :src="imageInfo.grayscale"></a-image>
-                </a-descriptions-item>
-                <a-descriptions-item label="归一化直方图">
-                    <a-image width="200px" :src="imageInfo.normalization"></a-image>
-                </a-descriptions-item>
+                <a-descriptions-item label="语谱图">
+                    <a-image width="200px" :src="audioInfo.spectrogram"></a-image>
+                </a-descriptions-item>  
             </a-descriptions>
 
         </div>
@@ -102,8 +98,8 @@ const isLoadding = ref(false);
 const open = ref(false);
 const isSelect = ref(false);
 
-function openImageSelector() {
-    getImageList();
+function openAudioSelector() {
+    getAudioList();
     isSelect.value = false;
     open.value = true;
 }
@@ -119,33 +115,32 @@ function handleChange(value) {
     //console.log(selectedId.value);
 }
 
-function selectImage() {
+function selectAudio() {
     open.value = false;
     stepNext();
     setTimeout(() => {
-        requestImageInfo(selectedId.value);
+        requestAudioInfo(selectedId.value);
     }, 3000);
 }
 
-const imageInfo = ref({});
-function requestImageInfo(id) {
+const audioInfo = ref({});
+function requestAudioInfo(id) {
     axios({
         method: 'get',
-        url: Server.apiUrl + '/image?id=' + id,
+        url: Server.apiUrl + '/audio?id=' + id,
         accept: 'application/json',
     })
         .then((res) => {
             if (res.data.code === 200) {
                 message.success("请求成功！");
-                const newImageInfo = {
+                const newAudioInfo = {
                     id: res.data.data[0].id,
                     title: res.data.data[0].title,
-                    photo: Server.url + res.data.data[0].photo,
-                    grayscale: Server.url + res.data.data[0].grayscale,
-                    normalization: Server.url + res.data.data[0].normalization,
+                    created: res.data.data[0].created,
+                    audio: Server.url + res.data.data[0].audio,
+                    spectrogram: Server.url + res.data.data[0].spectrogram,
                 };
-                imageInfo.value = newImageInfo;
-                //console.log(imageInfo.value);
+                audioInfo.value = newAudioInfo;
                 stepNext();
             } else {
                 throw new Error(res.data.code + " " + res.data.msg); // 抛出一个错误，进入到 catch 中
@@ -162,13 +157,13 @@ function requestImageInfo(id) {
         });
 }
 
-const imageList = ref([]);
-function getImageList() {
-    const getLoading = message.loading('图像列表加载中...', 0);
+const audioList = ref([]);
+function getAudioList() {
+    const getLoading = message.loading('音频列表加载中...', 0);
     isLoadding.value = true;
     axios({
         method: 'get',
-        url: Server.apiUrl + '/image',
+        url: Server.apiUrl + '/audio',
         accept: 'application/json',
     })
         .then((res) => {
@@ -179,13 +174,13 @@ function getImageList() {
                         uid: res.data.data[i].id,
                         name: res.data.data[i].title,
                         status: 'done',
-                        url: Server.url + res.data.data[i].photo,
+                        url: Server.url + res.data.data[i].audio,
                     });
                 }
-                imageList.value = newlist;
+                audioList.value = newlist;
                 getLoading(); // 关闭 loading message
                 isLoadding.value = false;
-                message.success("图像列表加载完成！");
+                message.success("音频列表加载完成！");
             } else {
                 throw new Error(res.data.code + " " + res.data.msg); // 抛出一个错误，进入到 catch 中
             }
@@ -214,10 +209,10 @@ const stepPrev = () => {
 
 const steps = [
     {
-        title: '选择图像',
+        title: '选择音频',
     },
     {
-        title: '处理图像',
+        title: '处理音频',
     },
     {
         title: '输出结果',

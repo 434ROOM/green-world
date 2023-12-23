@@ -40,6 +40,15 @@ const routes = [
     meta: {
       title: '视频交互'
     },
+    component: () => import('./pages/Video.vue')
+  },
+  {
+    path: '/video/lib',
+    name: 'VideoLib',
+    meta: {
+      title: '视频库'
+    },
+    component: () => import('./pages/VideoLib.vue')
   },
   {
     path: '/audio',
@@ -47,6 +56,15 @@ const routes = [
     meta: {
       title: '音频交互'
     },
+    component: () => import('./pages/Audio.vue')
+  },
+  {
+    path: '/audio/lib',
+    name: 'AudioLib',
+    meta: {
+      title: '音频库'
+    },
+    component: () => import('./pages/AudioLib.vue')
   },
   {
     path: '/image',
