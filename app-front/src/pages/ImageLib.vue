@@ -1,5 +1,5 @@
 <template>
-    <a-layout>
+    <a-layout has-sider>
         <GW-Navbar />
         <a-layout class="container">
             <GW-Sider />
@@ -41,11 +41,14 @@ export default {
     margin-top: 64px;
     padding: 0;
 }
-.right{
+
+.right {
     width: 100%;
     height: 100%;
-    overflow:auto;
+    overflow: auto;
+    margin-left: 200px;
 }
+
 .content {
     width: 100%;
     min-height: calc(100vh - 64px);
