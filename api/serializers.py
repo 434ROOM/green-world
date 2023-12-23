@@ -31,7 +31,17 @@ class AddImageSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
-class AudioSerializer(serializers.ModelSerializer):
+class GetAudioSerializer(serializers.ModelSerializer):
     class Meta:
         model = Audio
         fields = '__all__'
+
+class AddAudioSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Audio
+        fields = ['audio']
+
+    def save(self, **kwargs):
+        instance = Audio(**self.validated_data)
+        instance.save()
+        return instance
