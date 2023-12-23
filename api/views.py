@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework.parsers import FormParser, MultiPartParser
 from base.models import Video, Image, Audio
-from .serializers import GetVideoSerializer, GetImageSerializer, AudioSerializer, AddVideoSerializer, AddImageSerializer
+from .serializers import GetVideoSerializer, GetImageSerializer, GetAudioSerializer, AddVideoSerializer, AddImageSerializer, AddAudioSerializer
 from rest_framework.views import APIView
 from django.db.models import Q
 import datetime
@@ -43,10 +43,9 @@ def getVideo(request):
         return Response(new_dict)
     elif request.method == 'DELETE':
         id = request.GET.get('id') if request.GET.get('id') else ""
+
         if id:
-            video = Video.objects.filter(
-                Q(id=(int)(id))
-            )
+            video = Video.objects.filter(id=(int)(id))
 
         if not id or not video:
             code = status.HTTP_404_NOT_FOUND
@@ -54,8 +53,7 @@ def getVideo(request):
             new_dict.update({"code":code, "msg":msg, "time":time, "data":{}})
             return Response(new_dict, status=status.HTTP_404_NOT_FOUND)
         else:
-            obj = Video.objects.filter(id=(int)(id))
-            obj.delete()
+            video.delete()
             code = status.HTTP_200_OK
             msg = "Video instance successfully deleted"
             new_dict.update({"code":code, "msg":msg, "time":time, "data":{}})
@@ -86,7 +84,7 @@ class addVideo(APIView):
                              "cover":new_video.cover.url
                             })
 
-            code = status.HTTP_200_OK
+            code = status.HTTP_201_CREATED
             msg = "Video Uploaded Successfully"
 
             new_dict.update({"code":code, "msg":msg, "time":time, "data":new_data})
@@ -130,23 +128,20 @@ def getImage(request):
         return Response(new_dict, status=status.HTTP_200_OK)
     elif request.method == 'DELETE':
         id = request.GET.get('id') if request.GET.get('id') else ""
-        img = Image.objects.filter(
-            Q(id=(int)(id))
-        )
-
+        if id:
+            img = Image.objects.filter(id=(int)(id))
+    
         if not id or not img:
             code = status.HTTP_404_NOT_FOUND
             msg = "Please provide valid id value"
             new_dict.update({"code":code, "msg":msg, "time":time, "data":{}})
             return Response(new_dict, status=status.HTTP_404_NOT_FOUND)
-
-        obj = Image.objects.filter(id=(int)(id))
-        obj.delete()
-        code = status.HTTP_200_OK
-        msg = "Image instance successfully deleted"
-        new_dict.update({"code":code, "msg":msg, "time":time, "data":{}})
-        return Response(new_dict, status=status.HTTP_200_OK)
-
+        else:
+            img.delete()
+            code = status.HTTP_200_OK
+            msg = "Image instance successfully deleted"
+            new_dict.update({"code":code, "msg":msg, "time":time, "data":{}})
+            return Response(new_dict, status=status.HTTP_200_OK)
 
 class addImage(APIView):
     parser_classes = (MultiPartParser, FormParser)
@@ -178,21 +173,90 @@ class addImage(APIView):
             new_dict = {"code":code, "msg":msg, "time":time, "data":{}}
             return Response(new_dict, status=status.HTTP_400_BAD_REQUEST)
         
-@api_view(['GET'])
+@api_view(['GET', 'DELETE'])
 def getAudio(request):
-    audios = Audio.objects.all()
-    serializer = AudioSerializer(audios, many=True)
-    return Response(serializer.data)
+    new_dict = {}
+    msg = ""
+    time = datetime.datetime.now()
+
+    if request.method == 'GET':
+        q = request.GET.get('title') if request.GET.get('title') else ""
+        id = request.GET.get('id') if request.GET.get('id') else ""
+
+        if id and q:
+            audios = Audio.objects.filter(
+                Q(id=(int)(id)) | 
+                Q(title=q)
+            )
+        elif id and not q:
+            audios = Audio.objects.filter(
+                Q(id=(int)(id))
+            )
+        else:
+            audios = Audio.objects.filter(
+                Q(title__icontains=q)
+            )
+        code = status.HTTP_200_OK if audios else status.HTTP_400_BAD_REQUEST
+        if code == status.HTTP_200_OK:
+            msg = "Get target image successfully"
+        else: msg = "Unable to acquire the target image"
+
+        serializer = GetAudioSerializer(audios, many=True)
+        new_dict.update({"code":code, "msg":msg, "time":time, "data":serializer.data})
+        return Response(new_dict, status=status.HTTP_200_OK)
+    elif request.method == 'DELETE':
+        id = request.GET.get('id') if request.GET.get('id') else ""
+        if id:
+            audio = Audio.objects.filter(id=(int)(id))
+
+        if not id or not audio:
+            code = status.HTTP_404_NOT_FOUND
+            msg = "Please provide valid id value"
+            new_dict.update({"code":code, "msg":msg, "time":time, "data":{}})
+            return Response(new_dict, status=status.HTTP_404_NOT_FOUND)
+        else:
+            audio.delete()
+            code = status.HTTP_200_OK
+            msg = "Image instance successfully deleted"
+            new_dict.update({"code":code, "msg":msg, "time":time, "data":{}})
+            return Response(new_dict, status=status.HTTP_200_OK)
 
 class addAudio(APIView):
     parser_classes = (MultiPartParser, FormParser)
-    serializer_class = AudioSerializer
+    serializer_class = AddAudioSerializer
 
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
+        new_dict = {}
+        time = datetime.datetime.now()
+
         if serializer.is_valid():
-            serializer.save()
-            new_dict = {}
-            time = serializer.data["time"]
-            new_dict.update({"code":status.HTTP_201_CREATED, "msg":"Video Uploaded Successfully", "time":time, "data":serializer.data})
-            return Response(new_dict, status=status.HTTP_201_CREATED)
+            try:
+                new_audio = serializer.save()
+                new_data = {}
+                new_data.update({"id":new_audio.id,
+                                "title":new_audio.title,
+                                "audio":new_audio.audio.url,
+                                "spectrogram":new_audio.spectrogram.url,
+                                })
+                
+                code = status.HTTP_201_CREATED
+                msg = "Audio Uploaded Successfully"
+
+                new_dict.update({"code":code, "msg":msg, "time":time, "data":new_data})
+                return Response(new_dict, status=status.HTTP_201_CREATED)
+            except (RuntimeError, ValueError, TypeError) as e:
+                code = status.HTTP_500_INTERNAL_SERVER_ERROR
+                msg = f"Upload Error: {e}"
+
+                deprecated = Audio.objects.latest('created')
+                deprecated.delete()
+
+                new_dict.update({"code":code, "msg":msg, "time":time, "data":{}})
+                return Response(new_dict, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                
+        else:
+            code = status.HTTP_400_BAD_REQUEST
+            msg = "Upload failure"
+            new_dict = {"code":code, "msg":msg, "time":time, "data":{}}
+            return Response(new_dict, status=status.HTTP_400_BAD_REQUEST)

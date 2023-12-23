@@ -1,8 +1,6 @@
 from django.shortcuts import render, redirect
 from .models import Video, Image, Audio
 from .forms import VideoForm, ImageForm, AudioForm
-from .utility import getVideoUtility
-
 
 # Create your views here.
 def home(request):
