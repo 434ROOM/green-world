@@ -1,17 +1,8 @@
-import os, cv2, wave, io
+import os
 from django.db import models
-from .utility import getVideoUtility, getAudioUtility
-import numpy as np
+from .utility import getVideoUtility, getAudioUtility, getImageUtility
 import matplotlib
 matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-import scipy.io.wavfile as wavfile
-from scipy.signal import spectrogram
-from PIL import Image as PILImage
-from pathlib import Path, PurePosixPath
-import platform
-from django.conf import settings
-
 
 # Create your models here.
 
@@ -38,11 +29,11 @@ class Video(models.Model):
         super().save(*args, **kwargs)
         if self.video_file:
             self.title = os.path.splitext(os.path.basename(self.video_file.name))[0]
-            self.frames = getVideoUtility.getFrames(self.video_file.path)
-            self.fps = getVideoUtility.getFPS(self.video_file.path)
-            self.duration = getVideoUtility.getDuration(self.video_file.path)
-            self.width, self.height = getVideoUtility.getResolution(self.video_file.path)
-            self.cover.name = getVideoUtility.getCover(self.video_file.path, self.video_file.name)
+            self.frames = getVideoUtility.getFrames(self.video_file)
+            self.fps = getVideoUtility.getFPS(self.video_file)
+            self.duration = getVideoUtility.getDuration(self.video_file)
+            self.width, self.height = getVideoUtility.getResolution(self.video_file)
+            self.cover.name = getVideoUtility.getCover(self.video_file)
             
         super().save(*args, **kwargs)
 
@@ -79,13 +70,11 @@ class Image(models.Model):
         if not self.title and self.photo:
             self.title = os.path.splitext(os.path.basename(self.photo.name))[0]
 
-        # Generate and save grayscale image
         if self.photo and not self.grayscale:
-            self.grayscale.name = self.generate_grayscale()
+            self.grayscale.name = getImageUtility.generate_grayscale(self.photo)
 
-        # Generate and save normalized image
         if self.photo and not self.normalization:
-            self.normalization.name = self.generate_normalization()
+            self.normalization.name = getImageUtility.generate_normalization(self.photo)
 
         super().save(*args, **kwargs)
 
@@ -102,39 +91,6 @@ class Image(models.Model):
             if os.path.isfile(file_path):
                 os.remove(file_path)
 
-    def generate_grayscale(self):
-        # Generate and save grayscale image
-        if self.photo:
-            original_image_path = self.photo.path
-            img = cv2.imdecode(np.fromfile(original_image_path, dtype=np.uint8), -1)
-
-            grayscale_image = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-            grayscale_path = self.get_image_path("grayscale")
-            cv2.imwrite(grayscale_path, grayscale_image)
-            return self.get_image_url("grayscale")
-
-    def generate_normalization(self):
-        # Generate and save normalized image using OpenCV
-        if self.photo:
-            original_image_path = self.photo.path
-            img = cv2.imdecode(np.fromfile(original_image_path, dtype=np.uint8), -1)
-            # Normalize the image
-            normalized_image = cv2.normalize(img, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX)
-            # Save the normalized image
-            normalization_path = self.get_image_path("normalization")
-            cv2.imwrite(normalization_path, normalized_image)
-            return self.get_image_url("normalization")
-
-    def get_image_path(self, folder):
-        # Create a unique path for the image based on the folder (grayscale or normalization)
-        base_name = os.path.splitext(os.path.basename(self.photo.name))[0]
-        base_dir = os.path.dirname(self.photo.path)
-        return os.path.join(f"{base_dir}/{folder}/", f"{base_name}_{folder}.jpg")
-    
-    def get_image_url(self, folder):
-        base_name = os.path.splitext(os.path.basename(self.photo.name))[0]
-        return os.path.join(f"images/{folder}", f"{base_name}_{folder}.jpg")
-
 class AudioQuerySet(models.QuerySet):
     def delete(self):
         for audio in self:
@@ -145,21 +101,23 @@ class Audio(models.Model):
     title = models.CharField(max_length=20)
     audio = models.FileField(upload_to='audios/')
     spectrogram = models.ImageField(upload_to='audios/spectrogram', null=True, blank=True)
-    spectrum_diagram = models.ImageField(upload_to='audios/spectrum_diagram', null=True, blank=True)
+    created = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        if not self.title and self.audio:
-            self.title = os.path.splitext(os.path.basename(self.audio.name))[0]
-        self.spectrogram.name = getAudioUtility.getSpectrogram(self.audio)
-
-        super().save(*args, **kwargs)
+        try:
+            if not self.title and self.audio:
+                self.title = os.path.splitext(os.path.basename(self.audio.name))[0]
+            self.spectrogram.name = getAudioUtility.getSpectrogram(self.audio)
+            super().save(*args, **kwargs)
+        except ValueError or TypeError:
+            self.delete()
+            raise RuntimeError("Unsupported operation")
 
     def delete_audio(self):
         if os.path.isfile(self.audio.path):
             os.remove(self.audio.path)
         self.delete_image(self.spectrogram)
-        self.delete_image(self.spectrum_diagram)
 
     def delete_image(self, field):
         if field:
