@@ -5,9 +5,9 @@
             <GW-Sider />
             <a-layout class="right">
                 <a-layout-content class="content">
-                    <a-typography-title :level="1">图像交互</a-typography-title>
+                    <a-typography-title :level="1">视频交互</a-typography-title>
                     <a-divider />
-                    <ImageSteps />
+                    <VideoSteps />
 
                 </a-layout-content>
                 <GW-Footer />
@@ -22,14 +22,14 @@
 import Navbar from '../components/Navbar.vue';
 import Footer from '../components/Footer.vue';
 import Sider from '../components/Sider.vue';
-import ImageSteps from '@/components/ImageSteps.vue';
+import VideoSteps from '../components/VideoSteps.vue';
 
 export default {
     components: {
         'GW-Navbar': Navbar,
         'GW-Footer': Footer,
         'GW-Sider': Sider,
-        'ImageSteps': ImageSteps,
+        'VideoSteps': VideoSteps,
     },
 }
 </script>

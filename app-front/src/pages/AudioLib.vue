@@ -1,14 +1,13 @@
 <template>
-    <a-layout>
+    <a-layout has-sider>
         <GW-Navbar />
-        <a-layout class="container" has-sider>
+        <a-layout class="container">
             <GW-Sider />
             <a-layout class="right">
                 <a-layout-content class="content">
-                    <a-typography-title :level="1">图像交互</a-typography-title>
+                    <a-typography-title :level="1">音频库</a-typography-title>
                     <a-divider />
-                    <ImageSteps />
-
+                    <AudioUpload />
                 </a-layout-content>
                 <GW-Footer />
             </a-layout>
@@ -22,14 +21,14 @@
 import Navbar from '../components/Navbar.vue';
 import Footer from '../components/Footer.vue';
 import Sider from '../components/Sider.vue';
-import ImageSteps from '@/components/ImageSteps.vue';
+import AudioUpload from '../components/AudioUpload.vue';
 
 export default {
     components: {
         'GW-Navbar': Navbar,
         'GW-Footer': Footer,
         'GW-Sider': Sider,
-        'ImageSteps': ImageSteps,
+        'AudioUpload': AudioUpload,
     },
 }
 </script>
@@ -38,6 +37,7 @@ export default {
 <style scoped>
 .container {
     width: 100%;
+    height: calc(100vh - 64px);
     margin-top: 64px;
     padding: 0;
 }
@@ -45,17 +45,15 @@ export default {
 .right {
     width: 100%;
     height: 100%;
-    margin-left: 200px;
     overflow: auto;
+    margin-left: 200px;
 }
 
 .content {
     width: 100%;
-    height: fit-content;
     min-height: calc(100vh - 64px);
     background-color: #fff;
     padding: 2rem 3rem;
 }
-
 </style>
   
