@@ -198,7 +198,7 @@ def getAudio(request):
             )
         code = status.HTTP_200_OK if audios else status.HTTP_400_BAD_REQUEST
         if code == status.HTTP_200_OK:
-            msg = "Get target image successfully"
+            msg = "Get target audio successfully"
         else: msg = "Unable to acquire the target image"
 
         serializer = GetAudioSerializer(audios, many=True)
