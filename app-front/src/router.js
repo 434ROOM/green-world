@@ -81,7 +81,15 @@ const routes = [
       title: '图像库'
     },
     component: () => import('./pages/ImageLib.vue')
-  }
+  },
+  {
+    path:'/:catchAll(.*)',
+    name: '404',
+    meta: {
+      title: '404 Not Found'
+    },
+    component: () => import('./pages/404.vue'),
+  },
 ];
 
 const router = createRouter({
