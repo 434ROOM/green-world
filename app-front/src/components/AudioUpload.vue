@@ -53,7 +53,7 @@ const beforeUpload = file => {
     if (!isLt8) {
         openAudioLibFulled();
     }
-    const res = isMp4 && isLt30M && isLt8;
+    const res = isFormat && isLt3M && isLt8;
     return res || Upload.LIST_IGNORE;//不上传
 }
 
@@ -84,7 +84,7 @@ function handleUpload(data) {
 
     axios({
         method: 'post',
-        url: Server.apiUrl + '/audio',
+        url: Server.apiUrl + '/add-audio',
         data: formData,
         headers: {
             'Content-Type': 'multipart/form-data',
@@ -146,6 +146,7 @@ function handleChange(data) {
             thumbUrl: file.response.thumbUrl,
             url: file.response.url,
         }, {});
+        //console.log(newFileInfo);
         for (let i = 0; i < fileList.length; i++) {
             if (fileList[i].uid === file.uid) {
                 fileList[i] = newFileInfo;

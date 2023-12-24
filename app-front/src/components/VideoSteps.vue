@@ -75,7 +75,7 @@
                 </a-descriptions-item>
                 <a-descriptions-item label="视频文件">
                     <a-button type="primary" @click="videoPreview">查看视频</a-button>
-                    <a-modal :open="isOpenVideo" :title="videoList.title ? videoList.title : 'null'" :footer="null"
+                    <a-modal :open="isOpenVideo" :title="videoInfo.title" :footer="null"
                         @cancel="closeVideoReview">
                         <video width="100%" controls style="margin-top: 1rem;">
                             <source :src="videoInfo.video_file">
