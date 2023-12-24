@@ -100,7 +100,8 @@ class AudioQuerySet(models.QuerySet):
 class Audio(models.Model):
     title = models.CharField(max_length=20)
     audio = models.FileField(upload_to='audios/')
-    spectrogram = models.ImageField(upload_to='audios/spectrogram', null=True, blank=True)
+    spectrogram = models.ImageField(upload_to='audios/spectrogram/', null=True, blank=True)
+    spectrum_diagram = models.ImageField(upload_to='audios/spectrum_diagram/', null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
@@ -109,6 +110,7 @@ class Audio(models.Model):
             if not self.title and self.audio:
                 self.title = os.path.splitext(os.path.basename(self.audio.name))[0]
             self.spectrogram.name = getAudioUtility.getSpectrogram(self.audio)
+            self.spectrum_diagram = getAudioUtility.getFrequencySpectrum(self.audio)
             super().save(*args, **kwargs)
         except ValueError or TypeError:
             self.delete()
@@ -118,6 +120,7 @@ class Audio(models.Model):
         if os.path.isfile(self.audio.path):
             os.remove(self.audio.path)
         self.delete_image(self.spectrogram)
+        self.delete_image(self.spectrum_diagram)
 
     def delete_image(self, field):
         if field:
