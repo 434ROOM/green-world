@@ -183,7 +183,7 @@ class addImage(APIView):
                             })
             
             code = status.HTTP_201_CREATED
-            msg = "Video Uploaded Successfully"
+            msg = "Image Uploaded Successfully"
 
             new_dict.update({"code":code, "msg":msg, "time":time, "data":new_data})
             return Response(new_dict, status=status.HTTP_201_CREATED)
