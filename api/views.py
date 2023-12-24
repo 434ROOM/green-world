@@ -21,26 +21,34 @@ def getVideo(request):
 
         if id and q:
             videos = Video.objects.filter(
-                Q(id=(int)(id)) &
+                Q(id=(int)(id)) | 
                 Q(title=q)
             )
         elif id and not q:
             videos = Video.objects.filter(
                 Q(id=(int)(id))
             )
+        elif not id and not q:
+            videos = Video.objects.all()
         else:
             videos = Video.objects.filter(
                 Q(title__icontains=q)
             )
 
-        code = status.HTTP_200_OK if videos else status.HTTP_400_BAD_REQUEST
-        if code == status.HTTP_200_OK:
+        if videos:
+            code = status.HTTP_200_OK
             msg = "Get target video successfully"
-        else: msg = "Unable to acquire the target video"
+        elif not videos and not q and not id:
+            code = status.HTTP_204_NO_CONTENT
+            msg = "Database is currently empty"
+        else:
+            code = status.HTTP_400_BAD_REQUEST
+            msg = "Unable to acquire the target video"
+
         serializer = GetVideoSerializer(videos, many=True)
         new_dict.update({"code":code, "msg":msg, "time":time, "data":serializer.data})
 
-        return Response(new_dict)
+        return Response(new_dict, code)
     elif request.method == 'DELETE':
         id = request.GET.get('id') if request.GET.get('id') else ""
 
@@ -114,18 +122,27 @@ def getImage(request):
             images = Image.objects.filter(
                 Q(id=(int)(id))
             )
+        elif not id and not q:
+            images = Image.objects.all()
         else:
             images = Image.objects.filter(
                 Q(title__icontains=q)
             )
-        code = status.HTTP_200_OK if images else status.HTTP_400_BAD_REQUEST
-        if code == status.HTTP_200_OK:
+
+        if images:
+            code = status.HTTP_200_OK
             msg = "Get target image successfully"
-        else: msg = "Unable to acquire the target image"
+        elif not images and not q and not id:
+            code = status.HTTP_204_NO_CONTENT
+            msg = "Data base is currently empty"
+        else:
+            code = status.HTTP_400_BAD_REQUEST
+            msg = "Unable to acquire the target image"
 
         serializer = GetImageSerializer(images, many=True)
         new_dict.update({"code":code, "msg":msg, "time":time, "data":serializer.data})
-        return Response(new_dict, status=status.HTTP_200_OK)
+        return Response(new_dict, status=code)
+    
     elif request.method == 'DELETE':
         id = request.GET.get('id') if request.GET.get('id') else ""
         if id:
@@ -192,18 +209,26 @@ def getAudio(request):
             audios = Audio.objects.filter(
                 Q(id=(int)(id))
             )
+        elif not id and not q:
+            audios = Audio.objects.all()
         else:
             audios = Audio.objects.filter(
                 Q(title__icontains=q)
             )
-        code = status.HTTP_200_OK if audios else status.HTTP_400_BAD_REQUEST
-        if code == status.HTTP_200_OK:
+
+        if audios:
+            code = status.HTTP_200_OK
             msg = "Get target audio successfully"
-        else: msg = "Unable to acquire the target image"
+        elif not audios and not q and not id:
+            code = status.HTTP_204_NO_CONTENT
+            msg = "Data base is currently empty"
+        else:
+            code = status.HTTP_400_BAD_REQUEST
+            msg = "Unable to acquire the target audio"
 
         serializer = GetAudioSerializer(audios, many=True)
         new_dict.update({"code":code, "msg":msg, "time":time, "data":serializer.data})
-        return Response(new_dict, status=status.HTTP_200_OK)
+        return Response(new_dict, status=code)
     elif request.method == 'DELETE':
         id = request.GET.get('id') if request.GET.get('id') else ""
         if id:
@@ -217,7 +242,7 @@ def getAudio(request):
         else:
             audio.delete()
             code = status.HTTP_200_OK
-            msg = "Image instance successfully deleted"
+            msg = "Audio instance successfully deleted"
             new_dict.update({"code":code, "msg":msg, "time":time, "data":{}})
             return Response(new_dict, status=status.HTTP_200_OK)
 
