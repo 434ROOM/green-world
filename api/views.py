@@ -263,6 +263,7 @@ class addAudio(APIView):
                                 "title":new_audio.title,
                                 "audio":new_audio.audio.url,
                                 "spectrogram":new_audio.spectrogram.url,
+                                "spectrum_diagram":new_audio.spectrum_diagram.url
                                 })
                 
                 code = status.HTTP_201_CREATED

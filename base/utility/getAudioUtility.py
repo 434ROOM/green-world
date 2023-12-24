@@ -32,7 +32,6 @@ def getSpectrogram(audio_file):
         signal = raw.readframes(-1)
         signal = np.frombuffer(signal, dtype="int16")
         f_rate = raw.getframerate()
-        time = np.linspace(0, len(signal)/f_rate, num=len(signal))
         plt.figure()
         plt.specgram(signal, Fs=f_rate, cmap="viridis", aspect="auto")
     elif channel == 2:
@@ -45,6 +44,9 @@ def getSpectrogram(audio_file):
     else:
         raise ValueError("Unsupported channel")
     
+    plt.xlabel('Time (s)')
+    plt.ylabel('Frequency (Hz)')
+    plt.title('Spectrogram')
     spectrogram_save_directory = os.path.join(os.path.dirname(audio_file.path), "spectrogram")
     os.makedirs(spectrogram_save_directory, exist_ok=True)
     spectrogram_path = os.path.join(spectrogram_save_directory, f"{os.path.splitext(os.path.basename(audio_file.name))[0]}_spectrogram.jpg")
@@ -53,3 +55,28 @@ def getSpectrogram(audio_file):
 
     return get_audio_url(audio_file, "spectrogram")
 
+def getFrequencySpectrum(audio_file):
+    try:
+        data, sample_rate = librosa.load(audio_file.path, sr=44100)
+    except librosa.exc.LibrosaError as e:
+        raise TypeError(f"LibrosaError: {e}")
+    except Exception as e:
+        raise TypeError(f"Unsupported error: {e}")
+    
+    noverlap = 128
+    nfft = 512
+    stft = np.abs(librosa.stft(data, hop_length=noverlap, n_fft=nfft))
+
+    plt.figure()
+    plt.title('Audio Frequency Spectrum')
+    plt.xlabel('Frequency (Hz)')
+    plt.ylabel('Magnitude')
+    plt.pcolormesh(np.log10(stft), cmap='jet')
+    plt.colorbar()
+    frequency_spectrum = os.path.join(os.path.dirname(audio_file.path), "spectrum_diagram")
+    os.makedirs(frequency_spectrum, exist_ok=True)
+    spectrogram_path = os.path.join(frequency_spectrum, f"{os.path.splitext(os.path.basename(audio_file.name))[0]}_spectrum_diagram.jpg")
+    plt.savefig(spectrogram_path)
+    plt.close()
+
+    return get_audio_url(audio_file, "spectrum_diagram")

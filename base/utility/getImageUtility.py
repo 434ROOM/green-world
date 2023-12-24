@@ -1,6 +1,7 @@
 import cv2
 import os
 import numpy as np
+import matplotlib.pyplot as plt
 
 def generate_grayscale(photo):
     # Generate and save grayscale image
@@ -8,8 +9,14 @@ def generate_grayscale(photo):
         original_image_path = photo.path
         img = cv2.imdecode(np.fromfile(original_image_path, dtype=np.uint8), -1)
         grayscale_image = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        grayscale_path = get_image_path(photo, "grayscale")
-        cv2.imwrite(grayscale_path, grayscale_image)
+
+        plt.figure()
+        plt.hist(grayscale_image.ravel(), bins=256, range=[0, 256])
+        plt.xlabel('Pixel value')
+        plt.ylabel('Number of pixels')
+        plt.title('Grayscale histogram')
+        plt.savefig(get_image_path(photo, "grayscale"))
+
         return get_image_url(photo, "grayscale")
 
 def generate_normalization(photo):
@@ -22,7 +29,6 @@ def generate_normalization(photo):
         return get_image_url(photo, "normalization")
 
 def get_image_path(photo, folder):
-    # Create a unique path for the image based on the folder (grayscale or normalization)
     base_name = os.path.splitext(os.path.basename(photo.name))[0]
     base_dir = os.path.dirname(photo.path)
     return os.path.join(f"{base_dir}/{folder}/", f"{base_name}_{folder}.jpg")
