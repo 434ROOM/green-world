@@ -31,7 +31,7 @@ def generate_normalization(photo):
 def get_image_path(photo, folder):
     base_name = os.path.splitext(os.path.basename(photo.name))[0]
     base_dir = os.path.dirname(photo.path)
-    return os.path.join(f"{base_dir}/{folder}/", f"{base_name}_{folder}.jpg")
+    return os.path.join(f"{base_dir}/{folder}", f"{base_name}_{folder}.jpg")
 
 def get_image_url(photo, folder):
     base_name = os.path.splitext(os.path.basename(photo.name))[0]

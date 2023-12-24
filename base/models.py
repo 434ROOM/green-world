@@ -100,8 +100,8 @@ class AudioQuerySet(models.QuerySet):
 class Audio(models.Model):
     title = models.CharField(max_length=20)
     audio = models.FileField(upload_to='audios/')
-    spectrogram = models.ImageField(upload_to='audios/spectrogram', null=True, blank=True)
-    spectrum_diagram = models.ImageField(upload_to='audios/spectrum_diagram', null=True, blank=True)
+    spectrogram = models.ImageField(upload_to='audios/spectrogram/', null=True, blank=True)
+    spectrum_diagram = models.ImageField(upload_to='audios/spectrum_diagram/', null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
