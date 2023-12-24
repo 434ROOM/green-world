@@ -95,7 +95,7 @@ function handleUpload(data) {
         },
     })
         .then((res) => {
-            if (res.data.code === 201) {
+            if (res.status === 201) {
                 let fileInfo = {
                     uid: res.data.data.id,
                     name: res.data.data.title,
@@ -175,7 +175,7 @@ function getAudioList() {
         accept: 'application/json',
     })
         .then((res) => {
-            if (res.data.code === 200) {
+            if (res.status === 200) {
                 let newlist = [];
                 for (let i = 0; i < res.data.data.length; i++) {
                     newlist.push({
@@ -187,6 +187,11 @@ function getAudioList() {
                     });
                 }
                 fileList.value = newlist;
+                getLoading(); // 关闭 loading message
+                isRefresh.value = false;
+                message.success("音频列表加载完成！");
+            } else if (res.status === 204) {
+                fileList.value = [];
                 getLoading(); // 关闭 loading message
                 isRefresh.value = false;
                 message.success("音频列表加载完成！");

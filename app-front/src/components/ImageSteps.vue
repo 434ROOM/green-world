@@ -172,7 +172,7 @@ function getImageList() {
         accept: 'application/json',
     })
         .then((res) => {
-            if (res.data.code === 200) {
+            if (res.status === 200) {
                 let newlist = [];
                 for (let i = 0; i < res.data.data.length; i++) {
                     newlist.push({
@@ -186,6 +186,11 @@ function getImageList() {
                 getLoading(); // 关闭 loading message
                 isLoadding.value = false;
                 message.success("图像列表加载完成！");
+            } else if (res.status === 204) {
+                imageList.value = [];
+                getLoading(); // 关闭 loading message
+                isLoadding.value = false;
+                message.warning("图像列表为空，请先上传！");
             } else {
                 throw new Error(res.data.code + " " + res.data.msg); // 抛出一个错误，进入到 catch 中
             }
