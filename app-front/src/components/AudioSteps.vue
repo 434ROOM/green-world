@@ -70,6 +70,9 @@
                 </a-descriptions-item>
                 <a-descriptions-item label="语谱图">
                     <a-image width="200px" :src="audioInfo.spectrogram"></a-image>
+                </a-descriptions-item>
+                <a-descriptions-item label="频谱图">
+                    <a-image width="200px" :src="audioInfo.spectrum_diagram"></a-image>
                 </a-descriptions-item>  
             </a-descriptions>
 
@@ -139,6 +142,7 @@ function requestAudioInfo(id) {
                     created: res.data.data[0].created,
                     audio: Server.url + res.data.data[0].audio,
                     spectrogram: Server.url + res.data.data[0].spectrogram,
+                    spectrum_diagram: Server.url + res.data.data[0].spectrum_diagram,
                 };
                 audioInfo.value = newAudioInfo;
                 stepNext();
@@ -167,7 +171,7 @@ function getAudioList() {
         accept: 'application/json',
     })
         .then((res) => {
-            if (res.data.code === 200) {
+            if (res.status === 200) {
                 let newlist = [];
                 for (let i = 0; i < res.data.data.length; i++) {
                     newlist.push({
@@ -181,6 +185,11 @@ function getAudioList() {
                 getLoading(); // 关闭 loading message
                 isLoadding.value = false;
                 message.success("音频列表加载完成！");
+            } else if (res.status === 204) {
+                audioList.value = [];
+                getLoading(); // 关闭 loading message
+                isLoadding.value = false;
+                message.warning("音频列表为空，请先上传！");
             } else {
                 throw new Error(res.data.code + " " + res.data.msg); // 抛出一个错误，进入到 catch 中
             }

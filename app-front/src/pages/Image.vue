@@ -8,7 +8,6 @@
                     <a-typography-title :level="1">图像交互</a-typography-title>
                     <a-divider />
                     <ImageSteps />
-
                 </a-layout-content>
                 <GW-Footer />
             </a-layout>
