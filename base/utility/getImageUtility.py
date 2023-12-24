@@ -25,7 +25,7 @@ def generate_normalization(photo):
         original_image = cv2.imdecode(np.fromfile(original_image_path, dtype=np.uint8), -1)
         normalized_image = cv2.normalize(original_image, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX)
         normalization_path = get_image_path(photo, "normalization")
-        cv2.imwrite(normalization_path, normalized_image)
+        cv2.imencode('.jpg', normalized_image)[1].tofile(normalization_path)
         return get_image_url(photo, "normalization")
 
 def get_image_path(photo, folder):
