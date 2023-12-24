@@ -53,7 +53,7 @@ const beforeUpload = file => {
     if (!isLt8) {
         openAudioLibFulled();
     }
-    const res = isMp4 && isLt30M && isLt8;
+    const res = isFormat && isLt3M && isLt8;
     return res || Upload.LIST_IGNORE;//不上传
 }
 
