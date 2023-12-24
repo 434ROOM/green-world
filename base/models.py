@@ -131,6 +131,8 @@ class Audio(models.Model):
     spectrum_diagram = models.ImageField(upload_to='audios/spectrum_diagram/', null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True)
 
+    objects = AudioQuerySet.as_manager()
+
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         try:
