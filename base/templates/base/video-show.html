@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video</title>
+</head>
+
+<style>
+    h2 {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .upload-form {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        row-gap: 10px;
+    }
+
+    .upload-button {
+        border: 0;
+        border-radius: 15px;
+        padding: 10px 20px;
+        background-color: black;
+        color: white;
+    }
+
+    .video-collection {
+        display: flex;
+        flex-direction: column;
+        row-gap: 20px;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .video-self {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+    }
+
+    .video-self a {
+        color: black;
+        text-decoration: none;
+    }
+
+    .video-self a:hover {
+        text-decoration: underline;
+    }
+
+    .video-self a:visited {
+        color: black;
+    }
+</style>
+
+<body>
+    {% extends "main.html" %}
+
+    {% block content %}
+
+    {% if videos %}
+    <div class="video-collection">
+        {% for video in videos %}
+        <div>
+            <div class="video-self">
+                <video controls width="640" height="350">
+                    <source src="{{ video.video_file.url }}" type="{{ video.video_file.content_type }}" />
+                </video>
+                <a href="{% url 'delete-video' video.id %}">X</a>
+            </div>
+            <p>Video Duration: {{video.duration}}</p>
+            <p>Video FPS: {{video.fps}}</p>
+            <p>Video Frames: {{video.frames}}</p>
+            <p>Video Resolution: {{video.width}} x {{video.height}}</p>
+            <img src="{{ video.cover.url }}" alt="">
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <h2>Try Uploading your first video</h2>
+    {% endif %}
+
+    <form action="" method="post" name="upload" class="upload-form" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        {{form.as_p}}
+        <button type="submit" class="upload-button">Submit</button>
+    </form>
+    {% endblock content %}
+</body>
+
+</html>
