@@ -83,7 +83,7 @@ const routes = [
     component: () => import('./pages/ImageLib.vue')
   },
   {
-    path:'/:catchAll(.*)',
+    path: '/:catchAll(.*)',
     name: '404',
     meta: {
       title: '404 Not Found'
@@ -96,7 +96,13 @@ const router = createRouter({
   history: createWebHistory(),
   routes,
   scrollBehavior(to, from, savedPosition) {
-    return { top: 0 }; // 滚动到页面顶部
+    if (savedPosition) {
+      // 用户通过浏览器的“后退”按钮导航，回到之前保存的滚动位置
+      return savedPosition;
+    } else {
+      // 用户通过页面上的链接跳转，滚动到页面顶部
+      return { top: 0 };
+    }
   }
 });
 

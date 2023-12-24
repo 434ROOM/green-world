@@ -191,7 +191,6 @@ function getVideoList() {
                         cover: Server.url + res.data.data[i].cover,
                     });
                 }
-                console.log(newlist);
                 videoList.value = newlist;
                 getLoading(); // 关闭 loading message
                 isLoadding.value = false;

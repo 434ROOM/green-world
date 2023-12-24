@@ -55,8 +55,8 @@ import {
     FileImageOutlined,
 } from '@ant-design/icons-vue';
 
-const selectedKeys = ref<string[]>(['Video']);
-const openKeys = ref<string[]>(['VideoIndex']);
+const selectedKeys = ref<string[]>(['0']);
+const openKeys = ref<string[]>(['0']);
 
 const menu = [
     {
