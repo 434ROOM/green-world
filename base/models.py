@@ -3,6 +3,8 @@ from django.db import models
 from .utility import getVideoUtility, getAudioUtility, getImageUtility
 import matplotlib
 matplotlib.use('Agg')
+from django.dispatch import receiver
+from django.db.models.signals import post_delete
 
 # Create your models here.
 
@@ -66,6 +68,17 @@ class Image(models.Model):
     objects = ImageQuerySet.as_manager()
 
     def save(self, *args, **kwargs):
+        unified_path = os.path.dirname(self.photo.path)
+        existing_scatter_plots = [
+            os.path.join(f"{unified_path}scatter_plots", f"{self.title}_resolutions_scatter_plot.png"),
+            os.path.join(f"{unified_path}scatter_plots", f"{self.title}_sizes_histogram.png"),
+            os.path.join(f"{unified_path}scatter_plots", f"{self.title}_mean_color_distribution_bar_plot.png"),
+        ]
+
+        for plot_path in existing_scatter_plots:
+            if os.path.exists(plot_path):
+                os.remove(plot_path)
+
         super().save(*args, **kwargs)
         if not self.title and self.photo:
             self.title = os.path.splitext(os.path.basename(self.photo.name))[0]
@@ -79,17 +92,31 @@ class Image(models.Model):
         super().save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
-        # Delete images when the model instance is deleted
         self.delete_image(self.photo)
         self.delete_image(self.grayscale)
         self.delete_image(self.normalization)
         super().delete(*args, **kwargs)
+
+    
+    def delete_scatter_plots(self):
+        unified_path = os.path.dirname(self.photo.path)
+        resolutions_plot_path = os.path.join(f"{unified_path}scatter_plots", f"{self.title}_resolutions_scatter_plot.png")
+        sizes_plot_path = os.path.join(f"{unified_path}scatter_plots", f"{self.title}_sizes_histogram.png")
+        color_distribution_plot_path = os.path.join(f"{unified_path}scatter_plots", f"{self.title}_mean_color_distribution_bar_plot.png")
+
+        for plot_path in [resolutions_plot_path, sizes_plot_path, color_distribution_plot_path]:
+            if os.path.exists(plot_path):
+                os.remove(plot_path)
 
     def delete_image(self, field):
         if field:
             file_path = field.path
             if os.path.isfile(file_path):
                 os.remove(file_path)
+
+@receiver(post_delete, sender=Image)
+def delete_scatter_plots(sender, instance, **kwargs):
+    instance.delete_scatter_plots()
 
 class AudioQuerySet(models.QuerySet):
     def delete(self):

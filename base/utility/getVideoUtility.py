@@ -32,6 +32,6 @@ def getCover(video):
     frame_number = 30
     data.set(cv2.CAP_PROP_POS_FRAMES, frame_number)
     ret, frame = data.read()  
-    cv2.imwrite(get_image_path(video.path, video.name, "cover"), frame)
+    cv2.imencode('.jpg', frame)[1].tofile(get_image_path(video.path, video.name, "cover"))
     return get_image_url(video.name, "cover")  
     
