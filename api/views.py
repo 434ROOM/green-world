@@ -263,7 +263,6 @@ class ImageScatterPlotView(View):
     def get(self, request, *args, **kwargs):
         images = Image.objects.all()
 
-        # Check if scatter plots already exist
         scatter_plots_exist = (
             os.path.exists("resolutions_scatter_plot.png")
             and os.path.exists("sizes_histogram.png")
@@ -271,14 +270,12 @@ class ImageScatterPlotView(View):
         )
 
         if not scatter_plots_exist:
-            # Generate scatter plots
             (
                 resolutions_plot_url,
                 sizes_plot_url,
                 color_distribution_plot_url,
             ) = self.generate_scatter_plots(images)
         else:
-            # Use existing scatter plots
             resolutions_plot_url = self.get_scatter_plot_url("resolutions_scatter_plot")
             sizes_plot_url = self.get_scatter_plot_url("sizes_histogram")
             color_distribution_plot_url = self.get_scatter_plot_url("mean_color_distribution_bar_plot")
