@@ -165,7 +165,7 @@ function getVideoList() {
         accept: 'application/json',
     })
         .then((res) => {
-            if (res.data.code === 200) {
+            if (res.status === 200) {
                 let newlist = [];
                 for (let i = 0; i < res.data.data.length; i++) {
                     newlist.push({
@@ -180,7 +180,13 @@ function getVideoList() {
                 getLoading(); // 关闭 loading message
                 isRefresh.value = false;
                 message.success("视频列表加载完成！");
+            } else if (res.status === 204) {
+                fileList.value = [];
+                getLoading(); // 关闭 loading message
+                isRefresh.value = false;
+                message.success("视频列表加载完成！");
             } else {
+                console.log(res.data);
                 throw new Error(res.data.code + " " + res.data.msg); // 抛出一个错误，进入到 catch 中
             }
         })
