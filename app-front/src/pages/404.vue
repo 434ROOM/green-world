@@ -5,7 +5,9 @@
             <div class="center">
                 <a-result status="404" title="404 Not Found" sub-title="抱歉，您访问的页面走丢了。">
                     <template #extra>
-                        <a-button type="primary">回到首页</a-button>
+                        <a-button type="primary">
+                            <router-link to="/">回到首页</router-link>
+                        </a-button>
                     </template>
                 </a-result>
             </div>
