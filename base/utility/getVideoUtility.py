@@ -1,6 +1,7 @@
 import cv2, os
 from django.utils import timezone
-import matplotlib.pyplot as plt
+import platform, pathlib
+from pathlib import PureWindowsPath, PurePosixPath
 
 def getResolution(video):
     data = cv2.VideoCapture(video.path)
@@ -22,7 +23,12 @@ def getDuration(video):
 def get_image_path(video_file_path, video_file_name, folder):
     base_name = os.path.splitext(os.path.basename(video_file_name))[0]
     base_dir = os.path.dirname(video_file_path)
-    return os.path.join(f"{base_dir}/{folder}/", f"{base_name}_{folder}.jpg")
+
+    image_path = os.path.join(f"{base_dir}/{folder}/", f"{base_name}_{folder}.jpg")
+    os.makedirs(os.path.dirname(image_path), exist_ok=True)
+    if platform.system().lower() == 'windows':
+        return PureWindowsPath(image_path)
+    return PurePosixPath(image_path)
 
 def get_image_url(video_file_name, folder):
     base_name = os.path.splitext(os.path.basename(video_file_name))[0]
