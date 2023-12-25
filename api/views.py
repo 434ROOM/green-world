@@ -268,11 +268,11 @@ class ImageScatterPlotView(View):
 
     def get(self, request, *args, **kwargs):
         images = Image.objects.all()
+        time = datetime.datetime.now()
 
         if not images:
             code = status.HTTP_204_NO_CONTENT
             msg = "Database is currently empty"
-            time = datetime.datetime.now()
             resolutions_plot_url = ""
             sizes_plot_url = ""
             color_distribution_plot_url = ""
@@ -305,10 +305,9 @@ class ImageScatterPlotView(View):
                     color_distribution_plot_url,
                 ) = self.generate_scatter_plots(images)
             else:
-                resolutions_plot_url = self.get_scatter_plot_url(self.resolution_base_name)
-                sizes_plot_url = self.get_scatter_plot_url(self.size_base_name)
-                color_distribution_plot_url = self.get_scatter_plot_url(self.color_base_name)
-
+                resolutions_plot_url = str(self.get_scatter_plot_url(self.resolution_base_name))
+                sizes_plot_url = str(self.get_scatter_plot_url(self.size_base_name))
+                color_distribution_plot_url = str(self.get_scatter_plot_url(self.color_base_name))
             response_data = {
                 "code":code,
                 "msg":msg,
