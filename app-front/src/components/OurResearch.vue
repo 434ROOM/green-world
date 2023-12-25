@@ -87,7 +87,7 @@ const handleOk = (e: MouseEvent) => {
     align-items: center;
     flex-direction: column;
     width: 100%;
-    height: 1000px;
+    height: 100vh;
     background-image: url(../assets/images/index/trees.jpg);
 }
 
@@ -98,19 +98,22 @@ const handleOk = (e: MouseEvent) => {
 
 .cards {
     position: relative;
-    height: 650px;
+    width: 100%;
+    min-height: 60vh;
 }
 
 .voice-card {
-    width: 600px;
+    width: 50vw;
+    max-width: 500px;
     height: auto;
     transition: all 0.5s ease;
 }
 
 .left {
-    position: relative;
+    position: absolute;
     z-index: 1;
-    left: -30%;
+    right:45%;
+    top: 0;
 }
 
 .left:hover {
@@ -118,10 +121,10 @@ const handleOk = (e: MouseEvent) => {
 }
 
 .right {
-    position: relative;
+    position: absolute;
     z-index: 2;
-    right: -30%;
-    top: -30%;
+    left: 45%;
+    bottom: 0;
 }
 
 .big-img{

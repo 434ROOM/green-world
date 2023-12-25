@@ -24,6 +24,10 @@ import Footer from '../components/Footer.vue';
 import Sider from '../components/Sider.vue';
 import VideoSteps from '../components/VideoSteps.vue';
 
+const onBreakpoint = broken => {
+  console.log(broken);
+};
+
 export default {
     components: {
         'GW-Navbar': Navbar,

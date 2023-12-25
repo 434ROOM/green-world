@@ -94,6 +94,9 @@ const menu = [
     }
 ]
 
+
+const isSmallScreen = ref(false);
+
 export default {
     components: {
         VideoCameraOutlined,
@@ -115,10 +118,14 @@ export default {
         //console.log(selectedKeys.value);
         //console.log(openKeys.value);
     },
+    methods: {
+
+    },
     setup() {
         return {
             selectedKeys,
             openKeys,
+            isSmallScreen,
         }
     }
 }

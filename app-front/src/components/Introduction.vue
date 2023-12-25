@@ -1,10 +1,10 @@
 <template>
     <div class="intro">
         <a-row>
-            <a-col :span="12" class="left">
+            <a-col :span="12" class="left" :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
                 <img class="logo" src="../assets/images/logo.png" alt="">
             </a-col>
-            <a-col :span="12">
+            <a-col :span="12" :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
                 <a-typography-title :level="2">What is the GreenWorld?</a-typography-title>
                 <a-typography-paragraph>
                     当前，全球面临着诸多生态环境问题，如气候变化、生物多样性丧失和污染等。公众对这些问题的认识和理解对于生态环境的保护和可持续发展至关重要。

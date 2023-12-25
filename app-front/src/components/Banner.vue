@@ -71,6 +71,7 @@
   height: auto;
   position: absolute;
   text-align: center;
+  padding: 0 3rem;
   left: 0;
   top: 40%;
 }
