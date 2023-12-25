@@ -1,12 +1,19 @@
-import os
+import os, shortuuid
 from django.db import models
 from .utility import getVideoUtility, getAudioUtility, getImageUtility
 import matplotlib
 matplotlib.use('Agg')
 from django.dispatch import receiver
 from django.db.models.signals import post_delete
+from django.core.files.storage import FileSystemStorage
 
 # Create your models here.
+
+class UUIDStorage(FileSystemStorage):
+    def get_available_name(self, name, max_length=None):
+        my_uuid = shortuuid.ShortUUID().random(length=7)
+        new_name = os.path.splitext(name)[0] + f"_{my_uuid}" + os.path.splitext(name)[1]
+        return super().get_available_name(new_name, max_length)
 
 class VideoQuerySet(models.QuerySet):
     def delete(self):
@@ -17,13 +24,13 @@ class VideoQuerySet(models.QuerySet):
 class Video(models.Model):
     id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=200, null=True)
-    video_file = models.FileField(upload_to="videos/")
+    video_file = models.FileField(upload_to="videos/", storage=UUIDStorage)
     duration = models.DurationField(null=True, blank=False)
     fps = models.IntegerField(null=True, blank=False)
     frames = models.IntegerField(null=True, blank=False)
     width = models.IntegerField(null=True, blank=False)
     height = models.IntegerField(null=True, blank=False)
-    cover = models.ImageField(upload_to="videos/cover/", blank=True, null=True)
+    cover = models.ImageField(upload_to="videos/cover/", blank=True, null=True, storage=UUIDStorage)
 
     objects = VideoQuerySet.as_manager()
 
@@ -61,9 +68,9 @@ class ImageQuerySet(models.QuerySet):
 
 class Image(models.Model):
     title = models.CharField(max_length=20)
-    photo = models.ImageField(upload_to="images/")
-    grayscale = models.ImageField(upload_to="images/grayscale/", blank=True, null=True)
-    normalization = models.ImageField(upload_to="images/normalization/", blank=True, null=True)
+    photo = models.ImageField(upload_to="images/", storage=UUIDStorage)
+    grayscale = models.ImageField(upload_to="images/grayscale/", blank=True, null=True, storage=UUIDStorage)
+    normalization = models.ImageField(upload_to="images/normalization/", blank=True, null=True, storage=UUIDStorage)
 
     objects = ImageQuerySet.as_manager()
 
@@ -126,9 +133,9 @@ class AudioQuerySet(models.QuerySet):
 
 class Audio(models.Model):
     title = models.CharField(max_length=20)
-    audio = models.FileField(upload_to='audios/')
-    spectrogram = models.ImageField(upload_to='audios/spectrogram/', null=True, blank=True)
-    spectrum_diagram = models.ImageField(upload_to='audios/spectrum_diagram/', null=True, blank=True)
+    audio = models.FileField(upload_to='audios/', storage=UUIDStorage)
+    spectrogram = models.ImageField(upload_to='audios/spectrogram/', null=True, blank=True, storage=UUIDStorage)
+    spectrum_diagram = models.ImageField(upload_to='audios/spectrum_diagram/', null=True, blank=True, storage=UUIDStorage)
     created = models.DateTimeField(auto_now_add=True)
 
     objects = AudioQuerySet.as_manager()
