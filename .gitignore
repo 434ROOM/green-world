@@ -9,3 +9,7 @@
 
 # 忽略 .git
 **/.git
+
+
+media
+db.sqlite3
