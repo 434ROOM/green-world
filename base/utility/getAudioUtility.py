@@ -6,11 +6,18 @@ import librosa
 import matplotlib.pyplot as plt
 import scipy.io.wavfile as wavfile
 from scipy.signal import spectrogram
+import platform, pathlib
+from pathlib import PureWindowsPath, PurePosixPath
 
 def get_audio_path(audio_file, folder):
     base_name = os.path.splitext(os.path.basename(audio_file.name))[0]
     base_dir = os.path.dirname(audio_file.path)
-    return os.path.join(f"{base_dir}/{folder}", f"{base_name}_{folder}.jpg")
+
+    image_path = os.path.join(f"{base_dir}/{folder}/", f"{base_name}_{folder}.jpg")
+    os.makedirs(os.path.dirname(image_path), exist_ok=True)
+    if platform.system().lower() == 'windows':
+        return PureWindowsPath(image_path)
+    return PurePosixPath(image_path)
 
 def get_audio_url(audio_file, folder):
     base_name = os.path.splitext(os.path.basename(audio_file.name))[0]
