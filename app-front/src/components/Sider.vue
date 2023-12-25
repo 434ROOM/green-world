@@ -1,5 +1,6 @@
 <template>
-    <a-layout-sider class="sider" breakpoint="lg" collapsed-width="0" :style="{ position: 'fixed' }">
+    <a-layout-sider class="sider" breakpoint="lg" collapsed-width="0" :style="{ position: 'fixed' }" theme="light"
+        @breakpoint="onBreakpoint">
         <a-menu v-model:selectedKeys="selectedKeys" v-model:openKeys="openKeys" mode="inline" class="menu">
             <a-sub-menu key="VideoIndex">
                 <template #title>
@@ -119,7 +120,9 @@ export default {
         //console.log(openKeys.value);
     },
     methods: {
-
+        onBreakpoint(broken: boolean) {
+            this.$emit('isSmallScreen', broken);
+        },
     },
     setup() {
         return {
@@ -135,6 +138,7 @@ export default {
 <style scoped>
 .sider {
     display: fixed;
+    z-index: 15;
     width: 200px;
     height: calc(100vh - 64px);
     background: #fff;

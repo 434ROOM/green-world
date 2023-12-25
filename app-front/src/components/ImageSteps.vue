@@ -2,8 +2,8 @@
     <a-steps :current="current" :items="items"></a-steps>
     <div class="steps-content">
         <div v-if="current == 0">
-            <a-row class="row" :gutter="32">
-                <a-col :span="12">
+            <a-row class="row" :gutter="[{ xs: 8, sm: 16, md: 24, lg: 32 }, 32]">
+                <a-col :span="12" :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
                     <a-card hoverable class="card">
                         <img src="../assets/images/interacteion/icon-upload.png" alt="">
                         <div class="text-area">
@@ -15,7 +15,7 @@
                         </div>
                     </a-card>
                 </a-col>
-                <a-col :span="12">
+                <a-col :span="12" :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
                     <a-card hoverable class="card">
                         <img src="../assets/images/interacteion/icon-select.png" alt="">
                         <div class="text-area">
@@ -55,25 +55,28 @@
         </div>
 
         <div v-if="current == 2">
-            <a-result status="success" title="图像分析成功！"
-                sub-title="请在下方查看结果，或重新开始选择另一张图像。">
+            <a-result status="success" title="图像分析成功！" sub-title="请在下方查看结果，或重新开始选择另一张图像。">
                 <template #extra>
                     <a-button type="primary" @click="restart">重新开始</a-button>
                 </template>
             </a-result>
 
-            <a-descriptions :title="imageInfo.title + ' 处理结果'" bordered
-                :column="{ xxl: 2, xl: 2, lg: 2, md: 2, sm: 2, xs: 1 }">
+            <a-descriptions title="处理结果" bordered :column="{ xxl: 2, xl: 2, lg: 2, md: 2, sm: 2, xs: 1 }">
                 <a-descriptions-item label="文件名">{{ imageInfo.title }}</a-descriptions-item>
                 <a-descriptions-item label="文件 id">{{ imageInfo.id }}</a-descriptions-item>
                 <a-descriptions-item label="原始图像">
-                    <a-image width="200px" :src="imageInfo.photo"></a-image>
+                    <div style="width: 100%; max-width: 300px; margin: auto;">
+                        <a-image width="100%" :src="imageInfo.photo"></a-image>
+                    </div>
                 </a-descriptions-item>
                 <a-descriptions-item label="灰度直方图">
-                    <a-image width="200px" :src="imageInfo.grayscale"></a-image>
+                    <div style="width: 100%; max-width: 300px; margin: auto;">
+                    </div><a-image width="100%" :src="imageInfo.grayscale"></a-image>
                 </a-descriptions-item>
                 <a-descriptions-item label="归一化直方图">
-                    <a-image width="200px" :src="imageInfo.normalization"></a-image>
+                    <div style="width: 100%; max-width: 300px; margin: auto;">
+                        <a-image width="100%" :src="imageInfo.normalization"></a-image>
+                    </div>
                 </a-descriptions-item>
             </a-descriptions>
 
@@ -242,7 +245,7 @@ const items = steps.map(item => ({ key: item.title, title: item.title }));
     border-radius: .5rem;
     background-color: #fafafa;
     text-align: center;
-    padding: 30px 50px;
+    padding: 1rem 1.5rem;
     display: grid;
     align-items: center;
 }
@@ -308,4 +311,3 @@ const items = steps.map(item => ({ key: item.title, title: item.title }));
     border: 1px dashed #404040;
 }
 </style>
-  

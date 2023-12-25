@@ -2,8 +2,8 @@
     <a-layout>
         <GW-Navbar />
         <a-layout class="container" has-sider>
-            <GW-Sider />
-            <a-layout class="right">
+            <GW-Sider @isSmallScreen="handleSmallScreen" />
+            <a-layout class="right" :style="rightStyle">
                 <a-layout-content class="content">
                     <a-typography-title :level="1">图像交互</a-typography-title>
                     <a-divider />
@@ -17,11 +17,15 @@
 
 
 <script lang="ts">
-
+import { ref } from 'vue';
 import Navbar from '../components/Navbar.vue';
 import Footer from '../components/Footer.vue';
 import Sider from '../components/Sider.vue';
 import ImageSteps from '@/components/ImageSteps.vue';
+
+const rightStyle = ref({
+    marginLeft: '200px'
+});
 
 export default {
     components: {
@@ -30,6 +34,20 @@ export default {
         'GW-Sider': Sider,
         'ImageSteps': ImageSteps,
     },
+    methods: {
+        handleSmallScreen(isSmallScreen: boolean) {
+            if (isSmallScreen) {
+                rightStyle.value.marginLeft = '0';
+            } else {
+                rightStyle.value.marginLeft = '200px';
+            }
+        }
+    },
+    setup() {
+        return {
+            rightStyle,
+        }
+    }
 }
 </script>
 
