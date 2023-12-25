@@ -8,9 +8,10 @@ from rest_framework.views import APIView
 from django.http import JsonResponse
 from django.views import View
 from django.db.models import Q
-import datetime, os, cv2
+import datetime, os, cv2, platform
 import matplotlib.pyplot as plt
 import numpy as np
+from pathlib import PureWindowsPath, Path
 
 @api_view(['GET','DELETE']) 
 def getVideo(request):
@@ -195,8 +196,23 @@ class addImage(APIView):
         
 
 class ImageScatterPlotView(View):
-    def get_scatter_plot_url(self, plot_name):
-        return f"/media/images/scatter_plots/{plot_name}.png"
+    unified_path, unified_url = "", ""
+    resolution_base_name = "resolution_plot"
+    size_base_name = "size_plot"
+    color_base_name = "color_plot"
+    folder = "plots"
+
+    def get_scatter_plot_url(self, name):
+        url = Path(self.unified_url) / self.folder / f"{name}.png"
+        if platform.system().lower() == 'windows':
+            return PureWindowsPath(url)
+        return url
+    
+    def get_scatter_plot_path(self, name):
+        path = Path(self.unified_path) / f"{name}.png"
+        if platform.system().lower() == 'windows':
+            return PureWindowsPath(path)
+        return path
 
     def generate_scatter_plots(self, images):
         resolutions = []
@@ -214,86 +230,95 @@ class ImageScatterPlotView(View):
         sizes = np.array(sizes)
         color_distributions = np.array(color_distributions)
 
-        unified_path = os.path.dirname(images[0].photo.path)
-        resolutions_plot_folder = os.path.join(unified_path, "scatter_plots")
-        sizes_plot_folder = os.path.join(unified_path, "scatter_plots")
-        color_distribution_plot_folder = os.path.join(unified_path, "scatter_plots")
+        resolution_path = self.get_scatter_plot_path(self.resolution_base_name)
+        size_path = self.get_scatter_plot_path(self.size_base_name)
+        color_path = self.get_scatter_plot_path(self.color_base_name)
 
-        resolutions_plot_path = os.path.join(resolutions_plot_folder, "resolutions_scatter_plot")
-        sizes_plot_path = os.path.join(sizes_plot_folder, "sizes_histogram")
-        color_distribution_plot_path = os.path.join(color_distribution_plot_folder, "mean_color_distribution_bar_plot")
-
-
-        resolutions_plot_path = "resolutions_scatter_plot"
-        if not os.path.exists(f"{resolutions_plot_path}.png"):
+        if not os.path.exists(resolution_path):
             plt.scatter(resolutions[:, 0], resolutions[:, 1])
             plt.title("Distribution of Image Resolutions")
             plt.xlabel("Width (pixels)")
             plt.ylabel("Height (pixels)")
-            plt.savefig(os.path.join(resolutions_plot_folder, f"{resolutions_plot_path}.png"))
+            plt.savefig(resolution_path)
             plt.close()
 
-        # Generate histogram for sizes
-        sizes_plot_path = "sizes_histogram"
-        if not os.path.exists(f"{sizes_plot_path}.png"):
+        if not os.path.exists(size_path):
             plt.hist(sizes)
             plt.title("Distribution of Image Sizes")
             plt.xlabel("File Size (bytes)")
             plt.ylabel("Number of Images")
-            plt.savefig(os.path.join(sizes_plot_folder, f"{sizes_plot_path}.png"))
+            plt.savefig(size_path)
             plt.close()
 
         # Generate bar plot for mean color distribution
         mean_color_distribution = np.mean(color_distributions, axis=0)
-        color_distribution_plot_path = "mean_color_distribution_bar_plot"
-        if not os.path.exists(f"{color_distribution_plot_path}.png"):
+        if not os.path.exists(color_path):
             plt.bar(np.arange(256), mean_color_distribution)
             plt.title("Mean Color Distribution")
             plt.xlabel("Color Value")
             plt.ylabel("Number of Pixels")
-            plt.savefig(os.path.join(color_distribution_plot_folder, f"{color_distribution_plot_path}.png"))
+            plt.savefig(color_path)
             plt.close()
 
         return (
-            self.get_scatter_plot_url(resolutions_plot_path),
-            self.get_scatter_plot_url(sizes_plot_path),
-            self.get_scatter_plot_url(color_distribution_plot_path),
+            self.get_scatter_plot_url(self.resolution_base_name),
+            self.get_scatter_plot_url(self.size_base_name),
+            self.get_scatter_plot_url(self.color_base_name),
         )
 
     def get(self, request, *args, **kwargs):
         images = Image.objects.all()
 
-        scatter_plots_exist = (
-            os.path.exists("resolutions_scatter_plot.png")
-            and os.path.exists("sizes_histogram.png")
-            and os.path.exists("mean_color_distribution_bar_plot.png")
-        )
+        if not images:
+            code = status.HTTP_204_NO_CONTENT
+            msg = "Database is currently empty"
+            time = datetime.datetime.now()
+            resolutions_plot_url = ""
+            sizes_plot_url = ""
+            color_distribution_plot_url = ""
 
-        if not scatter_plots_exist:
-            (
-                resolutions_plot_url,
-                sizes_plot_url,
-                color_distribution_plot_url,
-            ) = self.generate_scatter_plots(images)
+            response_data = {
+                "code":code,
+                "msg":msg,
+                "time":time,
+                "resolutions_plot_url": resolutions_plot_url,
+                "sizes_plot_url": sizes_plot_url,
+                "color_distribution_plot_url": color_distribution_plot_url,
+            }
+
         else:
-            resolutions_plot_url = self.get_scatter_plot_url("resolutions_scatter_plot")
-            sizes_plot_url = self.get_scatter_plot_url("sizes_histogram")
-            color_distribution_plot_url = self.get_scatter_plot_url("mean_color_distribution_bar_plot")
+            code = status.HTTP_201_CREATED
+            msg = "Get image utility successfully"
+            self.unified_path = os.path.dirname(images[0].photo.path)
+            self.unified_url = os.path.dirname(images[0].photo.url)
 
-        response_data = {
-            "code":status.HTTP_201_CREATED,
-            "msg":"Get image utility successfully",
-            "time":datetime.datetime.now(),
-            "resolutions_plot_url": resolutions_plot_url,
-            "sizes_plot_url": sizes_plot_url,
-            "color_distribution_plot_url": color_distribution_plot_url,
-        }
+            scatter_plots_exist = (
+                os.path.exists(self.get_scatter_plot_path(self.resolution_base_name))
+                and os.path.exists(self.get_scatter_plot_path(self.size_base_name))
+                and os.path.exists(self.get_scatter_plot_path(self.color_base_name))
+            )
+
+            if not scatter_plots_exist:
+                (
+                    resolutions_plot_url,
+                    sizes_plot_url,
+                    color_distribution_plot_url,
+                ) = self.generate_scatter_plots(images)
+            else:
+                resolutions_plot_url = self.get_scatter_plot_url(self.resolution_base_name)
+                sizes_plot_url = self.get_scatter_plot_url(self.size_base_name)
+                color_distribution_plot_url = self.get_scatter_plot_url(self.color_base_name)
+
+            response_data = {
+                "code":code,
+                "msg":msg,
+                "time":time,
+                "resolutions_plot_url": resolutions_plot_url,
+                "sizes_plot_url": sizes_plot_url,
+                "color_distribution_plot_url": color_distribution_plot_url,
+            }
 
         return JsonResponse(response_data)
-
-
-
-
 
 @api_view(['GET', 'DELETE'])
 def getAudio(request):
