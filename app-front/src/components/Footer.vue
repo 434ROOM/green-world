@@ -1,8 +1,8 @@
 <template>
     <a-layout-footer>
         <a-divider />
-        <a-row class="footer" :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
-            <a-col class="gutter-row" :span="6">
+        <a-row class="footer" :gutter="[{ xs: 8, sm: 16, md: 24, lg: 32 }, { xs: 8, sm: 16, md: 24, lg: 32 }]">
+            <a-col class="gutter-row" :span="6" :xs="24" :sm="12" :md="12" :lg="6" :xl="6">
                 <div class="gutter-box logo-area">
                     <RouterLink to="/">
                         <img class="logo" :src="logoSrc" alt="nav-logo" @mouseover="logoChange(true)"
@@ -11,7 +11,7 @@
                     <h3 class="slogan">人与自然和谐共生</h3>
                 </div>
             </a-col>
-            <a-col class="gutter-row link-area" :span="6">
+            <a-col class="gutter-row link-area" :span="6" :xs="24" :sm="12" :md="12" :lg="6" :xl="6">
                 <div class="gutter-box">
                     <a-typography-title :level="4">站点</a-typography-title>
                     <a-typography-paragraph>
@@ -22,7 +22,7 @@
                     </a-typography-paragraph>
                 </div>
             </a-col>
-            <a-col class="gutter-row link-area" :span="6">
+            <a-col class="gutter-row link-area" :span="6" :xs="24" :sm="12" :md="12" :lg="6" :xl="6">
                 <div class="gutter-box">
                     <a-typography-title :level="4">链接</a-typography-title>
                     <a-typography-paragraph>
@@ -33,7 +33,7 @@
                     </a-typography-paragraph>
                 </div>
             </a-col>
-            <a-col class="gutter-row link-area" :span="6">
+            <a-col class="gutter-row link-area" :span="6" :xs="24" :sm="12" :md="12" :lg="6" :xl="6">
                 <div class="gutter-box">
                     <a-typography-title :level="4">联系我们</a-typography-title>
                     <a-typography-paragraph>

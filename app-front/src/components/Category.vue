@@ -3,8 +3,8 @@
         <a-typography-title :level="1">多媒体交互</a-typography-title>
         <p>基于数字媒体技术，我们实现了下列多种媒体类型的交互。我们希望通过这些真实的视听体验，增强公众对生态保护的认识。</p>
         <a-divider />
-        <a-row :gutter="16">
-            <a-col :span="8">
+        <a-row :gutter="[{ xs: 8, sm: 16, md: 24, lg: 32 }, 32]">
+            <a-col :span="8" :xs="24" :sm="24" :md="24" :lg="8" :xl="8">
                 <router-link to="/video">
                     <a-card hoverable class="card">
                         <div class="bg video"></div>
@@ -17,7 +17,7 @@
                     </a-card>
                 </router-link>
             </a-col>
-            <a-col :span="8">
+            <a-col :span="8" :xs="24" :sm="24" :md="24" :lg="8" :xl="8">
                 <router-link to="/audio">
                     <a-card hoverable class="card">
                         <div class="bg audio"></div>
@@ -29,7 +29,7 @@
                         </div>
                     </a-card></router-link>
             </a-col>
-            <a-col :span="8">
+            <a-col :span="8" :xs="24" :sm="24" :md="24" :lg="8" :xl="8">
                 <router-link to="/image">
                     <a-card hoverable class="card">
                         <div class="bg image"></div>

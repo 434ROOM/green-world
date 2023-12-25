@@ -9,20 +9,24 @@
                 <section>
                     <a-typography-title :level="2">我们是谁？</a-typography-title>
                     <p>我们来自北京林业大学信息学院，是一群热爱自然、热爱生命的年轻人。</p>
-                    <a-row class="wall">
-                        <a-col :span="12">
-                            <a-card hoverable class="card">
-                                <a-avatar class="avatar" size="large" src="http://q1.qlogo.cn/g?b=qq&nk=1905236008&s=640" />
-                                <a-card-meta title="申可" description="数媒22-2 后端开发" />
-                            </a-card>
-                        </a-col>
-                        <a-col :span="12">
-                            <a-card hoverable class="card">
-                                <a-avatar class="avatar" size="large" src="http://q1.qlogo.cn/g?b=qq&nk=1533180937&s=640" />
-                                <a-card-meta title="刘子豪" description="数媒22-1 前端开发" />
-                            </a-card>
-                        </a-col>
-                    </a-row>
+                    <div class="wall">
+                        <a-row :gutter="[{ xs: 8, sm: 16, md: 24, lg: 32 }, { xs: 8, sm: 16, md: 24, lg: 32 }]">
+                            <a-col :span="12" :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
+                                <a-card hoverable class="card">
+                                    <a-avatar class="avatar" size="large"
+                                        src="http://q1.qlogo.cn/g?b=qq&nk=1905236008&s=640" />
+                                    <a-card-meta title="申可" description="数媒22-2 后端开发" />
+                                </a-card>
+                            </a-col>
+                            <a-col :span="12" :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
+                                <a-card hoverable class="card">
+                                    <a-avatar class="avatar" size="large"
+                                        src="http://q1.qlogo.cn/g?b=qq&nk=1533180937&s=640" />
+                                    <a-card-meta title="刘子豪" description="数媒22-1 前端开发" />
+                                </a-card>
+                            </a-col>
+                        </a-row>
+                    </div>
                 </section>
 
                 <section>
@@ -39,38 +43,40 @@
                 <section>
                     <a-typography-title :level="2">技术栈</a-typography-title>
                     <p>为了系统的美观和高效，我们使用了以下最新的技术栈。感谢开源社区为我们提供的这些优秀工具！</p>
-                    <a-row class="wall">
-                        <a-col :span="8">
-                            <a href="https://www.djangoproject.com/" target="_blank">
-                                <a-card hoverable class="card">
-                                    <a-avatar class="avatar" size="large" :src="djLogo" />
-                                    <a-card-meta title="Django" />
-                                </a-card>
-                            </a>
-                        </a-col>
-                        <a-col :span="8">
-                            <a href="https://vuejs.org/" target="_blank">
-                                <a-card hoverable class="card">
-                                    <a-avatar class="avatar" size="large" :src="vueLogo" />
-                                    <a-card-meta title="Vue.js" />
-                                </a-card>
-                            </a>
-                        </a-col>
-                        <a-col :span="8">
-                            <a href="https://www.antdv.com/" target="_blank">
-                                <a-card hoverable class="card">
-                                    <a-avatar class="avatar" size="large" :src="antdvLogo" />
-                                    <a-card-meta title="Ant Design Vue" />
-                                </a-card>
-                            </a>
-                        </a-col>
-                    </a-row>
+                    <div class="wall">
+                        <a-row :gutter="[{ xs: 8, sm: 16, md: 24, lg: 32 }, { xs: 8, sm: 16, md: 24, lg: 32 }]">
+                            <a-col :span="8" :xs="24" :sm="24" :md="24" :lg="8" :xl="8">
+                                <a href="https://www.djangoproject.com/" target="_blank">
+                                    <a-card hoverable class="card">
+                                        <a-avatar class="avatar" size="large" :src="djLogo" />
+                                        <a-card-meta title="Django" />
+                                    </a-card>
+                                </a>
+                            </a-col>
+                            <a-col :span="8" :xs="24" :sm="24" :md="24" :lg="8" :xl="8">
+                                <a href="https://vuejs.org/" target="_blank">
+                                    <a-card hoverable class="card">
+                                        <a-avatar class="avatar" size="large" :src="vueLogo" />
+                                        <a-card-meta title="Vue.js" />
+                                    </a-card>
+                                </a>
+                            </a-col>
+                            <a-col :span="8" :xs="24" :sm="24" :md="24" :lg="8" :xl="8">
+                                <a href="https://www.antdv.com/" target="_blank">
+                                    <a-card hoverable class="card">
+                                        <a-avatar class="avatar" size="large" :src="antdvLogo" />
+                                        <a-card-meta title="Ant Design Vue" />
+                                    </a-card>
+                                </a>
+                            </a-col>
+                        </a-row>
+                    </div>
                 </section>
 
                 <section>
                     <a-typography-title :level="2">项目特点</a-typography-title>
-                    <a-row class="feature">
-                        <a-col :span="6">
+                    <a-row class="feature" :gutter="[{ xs: 8, sm: 16, md: 24, lg: 32 }, { xs: 8, sm: 16, md: 24, lg: 32 }]">
+                        <a-col :span="6" :xs="24" :sm="12" :md="12" :lg="6" :xl="6">
                             <a-card hoverable class="card">
                                 <div class="img-box f1"></div>
                                 <div class="text-box">
@@ -81,7 +87,7 @@
                                 </div>
                             </a-card>
                         </a-col>
-                        <a-col :span="6">
+                        <a-col :span="6" :xs="24" :sm="12" :md="12" :lg="6" :xl="6">
                             <a-card hoverable class="card">
                                 <div class="img-box f2"></div>
                                 <div class="text-box">
@@ -92,7 +98,7 @@
                                 </div>
                             </a-card>
                         </a-col>
-                        <a-col :span="6">
+                        <a-col :span="6" :xs="24" :sm="12" :md="12" :lg="6" :xl="6">
                             <a-card hoverable class="card">
                                 <div class="img-box f3"></div>
                                 <div class="text-box">
@@ -103,7 +109,7 @@
                                 </div>
                             </a-card>
                         </a-col>
-                        <a-col :span="6">
+                        <a-col :span="6" :xs="24" :sm="12" :md="12" :lg="6" :xl="6">
                             <a-card hoverable class="card">
                                 <div class="img-box f4"></div>
                                 <div class="text-box">
@@ -193,7 +199,8 @@ section:last-child {
 }
 
 .wall {
-    width: 70%;
+    width: 80%;
+    max-width: 800px;
     margin: 2rem auto;
 }
 
@@ -203,7 +210,7 @@ section:last-child {
 }
 
 .card {
-    width: 80%;
+    width: 100%;
     height: 100%;
     text-align: center;
     position: relative;

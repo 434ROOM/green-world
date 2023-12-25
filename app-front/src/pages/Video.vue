@@ -2,13 +2,12 @@
     <a-layout>
         <GW-Navbar />
         <a-layout class="container" has-sider>
-            <GW-Sider />
-            <a-layout class="right">
+            <GW-Sider @isSmallScreen="handleSmallScreen" />
+            <a-layout class="right" :style="rightStyle">
                 <a-layout-content class="content">
                     <a-typography-title :level="1">视频交互</a-typography-title>
                     <a-divider />
                     <VideoSteps />
-
                 </a-layout-content>
                 <GW-Footer />
             </a-layout>
@@ -23,6 +22,11 @@ import Navbar from '../components/Navbar.vue';
 import Footer from '../components/Footer.vue';
 import Sider from '../components/Sider.vue';
 import VideoSteps from '../components/VideoSteps.vue';
+import { ref } from 'vue';
+
+const rightStyle = ref({
+    marginLeft: '200px'
+});
 
 export default {
     components: {
@@ -31,6 +35,20 @@ export default {
         'GW-Sider': Sider,
         'VideoSteps': VideoSteps,
     },
+    methods: {
+        handleSmallScreen(isSmallScreen: boolean) {
+            if (isSmallScreen) {
+                rightStyle.value.marginLeft = '0';
+            } else {
+                rightStyle.value.marginLeft = '200px';
+            }
+        }
+    },
+    setup() {
+        return {
+            rightStyle,
+        }
+    }
 }
 </script>
 
@@ -56,6 +74,5 @@ export default {
     background-color: #fff;
     padding: 2rem 3rem;
 }
-
 </style>
   

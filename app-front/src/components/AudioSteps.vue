@@ -2,8 +2,8 @@
     <a-steps :current="current" :items="items"></a-steps>
     <div class="steps-content">
         <div v-if="current == 0">
-            <a-row class="row" :gutter="32">
-                <a-col :span="12">
+            <a-row class="row" :gutter="[{ xs: 8, sm: 16, md: 24, lg: 32 }, 32]">
+                <a-col :span="12" :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
                     <a-card hoverable class="card">
                         <img src="../assets/images/interacteion/icon-upload.png" alt="">
                         <div class="text-area">
@@ -15,7 +15,7 @@
                         </div>
                     </a-card>
                 </a-col>
-                <a-col :span="12">
+                <a-col :span="12" :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
                     <a-card hoverable class="card">
                         <img src="../assets/images/interacteion/icon-select.png" alt="">
                         <div class="text-area">
@@ -53,27 +53,32 @@
         </div>
 
         <div v-if="current == 2">
-            <a-result status="success" title="音频分析成功！"
-                sub-title="请在下方查看结果，或重新开始选择另一个音频。">
+            <a-result status="success" title="音频分析成功！" sub-title="请在下方查看结果，或重新开始选择另一个音频。">
                 <template #extra>
                     <a-button type="primary" @click="restart">重新开始</a-button>
                 </template>
             </a-result>
 
-            <a-descriptions :title="audioInfo.title + ' 处理结果'" bordered
-                :column="{ xxl: 2, xl: 2, lg: 2, md: 2, sm: 2, xs: 1 }">
+            <a-descriptions title="处理结果" bordered :column="{ xxl: 2, xl: 2, lg: 2, md: 2, sm: 2, xs: 1 }">
                 <a-descriptions-item label="文件名">{{ audioInfo.title }}</a-descriptions-item>
                 <a-descriptions-item label="文件 id">{{ audioInfo.id }}</a-descriptions-item>
                 <a-descriptions-item label="创建时间">{{ audioInfo.created }}</a-descriptions-item>
                 <a-descriptions-item label="原始音频">
-                    <audio :src="audioInfo.audio" controls></audio>
+                    <a-button type="primary" @click="audioPreview">查看音频</a-button>
+                    <a-modal :open="isOpenAudio" :title="audioInfo.title" :footer="null" @cancel="closeAudioReview">
+                        <audio :src="audioInfo.audio" controls style="margin-top: 1rem;"></audio>
+                    </a-modal>
                 </a-descriptions-item>
                 <a-descriptions-item label="语谱图">
-                    <a-image width="200px" :src="audioInfo.spectrogram"></a-image>
+                    <div style="width: 100%; max-width: 300px; margin: auto;">
+                        <a-image width="100%" :src="audioInfo.spectrogram"></a-image>
+                    </div>
                 </a-descriptions-item>
                 <a-descriptions-item label="频谱图">
-                    <a-image width="200px" :src="audioInfo.spectrum_diagram"></a-image>
-                </a-descriptions-item>  
+                    <div style="width: 100%; max-width: 300px; margin: auto;">
+                        <a-image width="100%" :src="audioInfo.spectrum_diagram"></a-image>
+                    </div>
+                </a-descriptions-item>
             </a-descriptions>
 
         </div>
@@ -228,6 +233,15 @@ const steps = [
     },
 ];
 const items = steps.map(item => ({ key: item.title, title: item.title }));
+
+// 音频预览
+const isOpenAudio = ref(false);
+function audioPreview() {
+    isOpenAudio.value = true;
+}
+function closeAudioReview() {
+    isOpenAudio.value = false;
+}
 </script>
 
 
@@ -241,7 +255,7 @@ const items = steps.map(item => ({ key: item.title, title: item.title }));
     border-radius: .5rem;
     background-color: #fafafa;
     text-align: center;
-    padding: 30px 50px;
+    padding: 1rem 1.5rem;
     display: grid;
     align-items: center;
 }
@@ -287,7 +301,7 @@ const items = steps.map(item => ({ key: item.title, title: item.title }));
     margin: 2rem auto;
 }
 
-.selector-img {
+.selector-video {
     width: 50px;
     height: 50px;
     object-fit: cover;

@@ -2,8 +2,8 @@
     <a-steps :current="current" :items="items"></a-steps>
     <div class="steps-content">
         <div v-if="current == 0">
-            <a-row class="row" :gutter="32">
-                <a-col :span="12">
+            <a-row class="row" :gutter="[{ xs: 8, sm: 16, md: 24, lg: 32 }, 32]">
+                <a-col :span="12" :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
                     <a-card hoverable class="card">
                         <img src="../assets/images/interacteion/icon-upload.png" alt="">
                         <div class="text-area">
@@ -15,7 +15,7 @@
                         </div>
                     </a-card>
                 </a-col>
-                <a-col :span="12">
+                <a-col :span="12" :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
                     <a-card hoverable class="card">
                         <img src="../assets/images/interacteion/icon-select.png" alt="">
                         <div class="text-area">
@@ -61,8 +61,7 @@
                 </template>
             </a-result>
 
-            <a-descriptions :title="videoInfo.title + ' 处理结果'" bordered
-                :column="{ xxl: 2, xl: 2, lg: 2, md: 2, sm: 2, xs: 1 }">
+            <a-descriptions title="处理结果" bordered :column="{ xxl: 2, xl: 2, lg: 2, md: 2, sm: 1, xs: 1 }">
                 <a-descriptions-item label="文件名">{{ videoInfo.title }}</a-descriptions-item>
                 <a-descriptions-item label="文件 id">{{ videoInfo.id }}</a-descriptions-item>
                 <a-descriptions-item label="视频时长">{{ videoInfo.duration }}</a-descriptions-item>
@@ -71,12 +70,13 @@
                 <a-descriptions-item label="视频宽度">{{ videoInfo.width }}</a-descriptions-item>
                 <a-descriptions-item label="视频高度">{{ videoInfo.height }}</a-descriptions-item>
                 <a-descriptions-item label="视频封面">
-                    <a-image width="200px" :src="videoInfo.cover"></a-image>
+                    <div style="width: 100%; max-width: 300px; margin: auto;">
+                        <a-image width="100%" :src="videoInfo.cover"></a-image>
+                    </div>
                 </a-descriptions-item>
                 <a-descriptions-item label="视频文件">
                     <a-button type="primary" @click="videoPreview">查看视频</a-button>
-                    <a-modal :open="isOpenVideo" :title="videoInfo.title" :footer="null"
-                        @cancel="closeVideoReview">
+                    <a-modal :open="isOpenVideo" :title="videoInfo.title" :footer="null" @cancel="closeVideoReview">
                         <video width="100%" controls style="margin-top: 1rem;">
                             <source :src="videoInfo.video_file">
                             您的浏览器不支持 HTML5 video 标签。
@@ -261,7 +261,7 @@ function closeVideoReview() {
     border-radius: .5rem;
     background-color: #fafafa;
     text-align: center;
-    padding: 30px 50px;
+    padding: 1rem 1.5rem;
     display: grid;
     align-items: center;
 }
