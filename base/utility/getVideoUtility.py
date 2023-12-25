@@ -1,5 +1,6 @@
 import cv2, os
 from django.utils import timezone
+import matplotlib.pyplot as plt
 
 def getResolution(video):
     data = cv2.VideoCapture(video.path)
@@ -31,7 +32,7 @@ def getCover(video):
     data = cv2.VideoCapture(video.path)
     frame_number = 30
     data.set(cv2.CAP_PROP_POS_FRAMES, frame_number)
-    ret, frame = data.read()  
+    ret, frame = data.read()
     cv2.imencode('.jpg', frame)[1].tofile(get_image_path(video.path, video.name, "cover"))
     return get_image_url(video.name, "cover")  
     
