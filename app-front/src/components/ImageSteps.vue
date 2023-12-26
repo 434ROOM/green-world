@@ -71,7 +71,8 @@
                 </a-descriptions-item>
                 <a-descriptions-item label="灰度直方图">
                     <div style="width: 100%; max-width: 300px; margin: auto;">
-                    </div><a-image width="100%" :src="imageInfo.grayscale"></a-image>
+                        <a-image width="100%" :src="imageInfo.grayscale"></a-image>
+                    </div>
                 </a-descriptions-item>
                 <a-descriptions-item label="归一化直方图">
                     <div style="width: 100%; max-width: 300px; margin: auto;">
