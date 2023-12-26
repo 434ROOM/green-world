@@ -11,7 +11,7 @@
       <img src="../assets/images/banner/2.jpg" alt="">
       <div class="text">
         <h1>在<span class="forest">森林</span>，自由呼吸</h1>
-        <p>报道，0.4公顷林带，一年中可吸收并同化100000千克的污染物。1公顷柳杉林，每年可吸收720千克的二氧化硫。</p>
+        <p>0.4公顷林带，一年中可吸收并同化 100000 千克的污染物。1 公顷柳杉林，每年可吸收 720 千克的二氧化硫。</p>
       </div>
     </div>
     <div>
@@ -72,8 +72,9 @@
   position: absolute;
   text-align: center;
   padding: 0 3rem;
-  left: 0;
-  top: 40%;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
 }
 
 :deep(.slick-slide h1) {
@@ -89,29 +90,31 @@
   margin: auto;
   font-size: 1rem;
 }
-.nature{
-  background-image: linear-gradient( 135deg, #2AFADF 10%, #4C83FF 100%);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-.forest{
-  background-image: linear-gradient( 135deg, #81FBB8 10%, #28C76F 100%);
+
+.nature {
+  background-image: linear-gradient(135deg, #2AFADF 10%, #4C83FF 100%);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
-.sea{
-  background-image: linear-gradient( 135deg, #3C8CE7 10%, #00EAFF 100%);
+.forest {
+  background-image: linear-gradient(135deg, #81FBB8 10%, #28C76F 100%);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
-.snow{
-  background-image: linear-gradient( 135deg, #90F7EC 10%, #32CCBC 100%);
+
+.sea {
+  background-image: linear-gradient(135deg, #3C8CE7 10%, #00EAFF 100%);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
-</style>
+
+.snow {
+  background-image: linear-gradient(135deg, #90F7EC 10%, #32CCBC 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}</style>
