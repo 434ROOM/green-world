@@ -4,7 +4,8 @@
     </a-button>
     <div class="clearfix">
         <a-upload v-model:file-list="fileList" :custom-request="handleUpload" list-type="picture-card" :multiple="true"
-            @preview="handlePreview" accept="image/png, image/jpeg" :before-upload="beforeUpload" @change="handleChange">
+            @preview="handlePreview" accept="image/png, image/jpeg" :before-upload="beforeUpload" @change="handleChange"
+            @remove="beforeDelete">
             <div v-if="fileList.length < 8">
                 <plus-outlined />
                 <div style="margin-top: 8px">上传图像</div>
@@ -21,9 +22,20 @@
 import { ref } from 'vue';
 import { onMounted } from 'vue';
 import { reactive } from 'vue';
+import { createVNode } from 'vue';
 import axios from 'axios';
-import { PlusOutlined } from '@ant-design/icons-vue';
-import { Upload, message } from 'ant-design-vue';
+
+import {
+    PlusOutlined,
+    ExclamationCircleOutlined
+} from '@ant-design/icons-vue';
+
+import {
+    Upload,
+    message,
+    Modal
+} from 'ant-design-vue';
+
 import Server from '../serverConfig.js';
 
 // 图像上传前的检查
@@ -215,6 +227,30 @@ function openImageLibFulled() {
     });
 };
 
+// 删除前确认
+const showDeleteConfirm = () => {
+    return new Promise((resolve, reject) => {
+        Modal.confirm({
+            title: '是否确认删除？',
+            icon: createVNode(ExclamationCircleOutlined),
+            content: '请注意，删除后无法恢复！',
+            okText: '确认',
+            okType: 'danger',
+            cancelText: '取消',
+            onOk() {
+                resolve(true);
+            },
+            onCancel() {
+                resolve(false);
+            },
+        });
+    });
+};
+
+async function beforeDelete() {
+    const isDelete = await showDeleteConfirm();
+    return isDelete;
+}
 
 // 生命周期
 onMounted(() => {
@@ -241,5 +277,4 @@ onMounted(() => {
 
 .refresh {
     margin-bottom: 1.5rem;
-}
-</style>
+}</style>
