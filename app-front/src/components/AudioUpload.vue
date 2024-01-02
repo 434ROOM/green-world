@@ -45,15 +45,15 @@ const beforeUpload = file => {
     if (!isFormat) {
         message.error('音频格式不正确，请上传 .wav 或 .wave 格式的音频！');
     }
-    const isLt3M = file.size / 1024 / 1024 < 3;
-    if (!isLt3M) {
-        message.error('音频大小不能超过 3MB！');
+    const isLt10M = file.size / 1024 / 1024 < 10;
+    if (!isLt10M) {
+        message.error('音频大小不能超过 10MB！');
     }
     const isLt8 = fileList.value.length < 8;
     if (!isLt8) {
         openAudioLibFulled();
     }
-    const res = isFormat && isLt3M && isLt8;
+    const res = isFormat && isLt10M && isLt8;
     return res || Upload.LIST_IGNORE;//不上传
 }
 
