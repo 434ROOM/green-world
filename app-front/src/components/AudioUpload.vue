@@ -4,9 +4,10 @@
     </a-button>
     <div class="clearfix">
         <a-upload v-model:file-list="fileList" :custom-request="handleUpload" list-type="picture-card" :multiple="true"
-            @preview="handlePreview" accept="audio/wave, audio/wav" :before-upload="beforeUpload" @change="handleChange">
+            @preview="handlePreview" accept="audio/wave, audio/wav" :before-upload="beforeUpload" @change="handleChange"
+            @remove="beforeDelete">
             <template #previewIcon>
-                <SoundOutlined @click="handlePreview" style="color: white;" />
+                <SoundOutlined @click="handlePreview" class="play-btn" style="color: rgba(255, 255, 255, 0.8)" />
             </template>
             <div v-if="fileList.length < 8">
                 <plus-outlined />
@@ -14,7 +15,7 @@
             </div>
         </a-upload>
         <a-modal :open="previewVisible" :title="previewTitle" :footer="null" @cancel="handleCancel">
-            <audio width="100%" controls style="margin-top: 1rem;">
+            <audio width="100%" style="margin-top: 1rem;" :key="previewTitle" controls>
                 <source :src="previewAudio">
                 您的浏览器不支持 HTML5 audio 标签。
             </audio>
@@ -27,12 +28,21 @@
 import { ref } from 'vue';
 import { onMounted } from 'vue';
 import { reactive } from 'vue';
+import { createVNode } from 'vue';
 import axios from 'axios';
+
 import {
     PlusOutlined,
     SoundOutlined,
+    ExclamationCircleOutlined
 } from '@ant-design/icons-vue';
-import { Upload, message } from 'ant-design-vue';
+
+import {
+    Upload,
+    message,
+    Modal
+} from 'ant-design-vue';
+
 import Server from '../serverConfig.js';
 
 import audioIcon from '../assets/images/interacteion/icon-audio.png';
@@ -45,15 +55,15 @@ const beforeUpload = file => {
     if (!isFormat) {
         message.error('音频格式不正确，请上传 .wav 或 .wave 格式的音频！');
     }
-    const isLt3M = file.size / 1024 / 1024 < 3;
-    if (!isLt3M) {
-        message.error('音频大小不能超过 3MB！');
+    const isLt10M = file.size / 1024 / 1024 < 10;
+    if (!isLt10M) {
+        message.error('音频大小不能超过 10MB！');
     }
     const isLt8 = fileList.value.length < 8;
     if (!isLt8) {
         openAudioLibFulled();
     }
-    const res = isFormat && isLt3M && isLt8;
+    const res = isFormat && isLt10M && isLt8;
     return res || Upload.LIST_IGNORE;//不上传
 }
 
@@ -71,8 +81,8 @@ const handleCancel = () => {
 // 预览
 const handlePreview = async file => {
     previewAudio.value = file.url;
-    previewVisible.value = true;
     previewTitle.value = file.name;
+    previewVisible.value = true;
 };
 
 
@@ -219,6 +229,30 @@ function openAudioLibFulled() {
     });
 };
 
+// 删除前确认
+const showDeleteConfirm = () => {
+    return new Promise((resolve, reject) => {
+        Modal.confirm({
+            title: '是否确认删除？',
+            icon: createVNode(ExclamationCircleOutlined),
+            content: '请注意，删除后无法恢复！',
+            okText: '确认',
+            okType: 'danger',
+            cancelText: '取消',
+            onOk() {
+                resolve(true);
+            },
+            onCancel() {
+                resolve(false);
+            },
+        });
+    });
+};
+
+async function beforeDelete() {
+    const isDelete = await showDeleteConfirm();
+    return isDelete;
+}
 
 // 生命周期
 onMounted(() => {
