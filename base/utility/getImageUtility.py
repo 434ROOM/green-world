@@ -34,6 +34,26 @@ def generate_normalization(photo):
         plt.savefig(get_image_path(photo, "normalization"))
         
         return get_image_url(photo, "normalization")
+    
+def generate_gray_processed(photo):
+    if photo:
+        original_image_path = photo.path
+        img = cv2.imdecode(np.fromfile(original_image_path, dtype=np.uint8), -1)
+        grayscale_image = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        cv2.imencode('.jpg', grayscale_image)[1].tofile(get_image_path(photo, "gray"))
+
+        return get_image_url(photo, "gray")
+    
+def generate_normalized_processed(photo):
+    if photo:
+        original_image_path = photo.path
+        img = cv2.imdecode(np.fromfile(original_image_path, dtype=np.uint8), -1)
+        normalized_image = cv2.normalize(img, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX)
+        cv2.imencode('.jpg', normalized_image)[1].tofile(get_image_path(photo, "normalized"))
+
+        return get_image_url(photo, "normalized")
+
+
 
 def get_image_path(photo, folder):
     base_name = os.path.splitext(os.path.basename(photo.name))[0]

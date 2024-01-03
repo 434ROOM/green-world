@@ -4,7 +4,6 @@ from .utility import getVideoUtility, getAudioUtility, getImageUtility
 import matplotlib
 matplotlib.use('Agg')
 from django.dispatch import receiver
-from django.db.models.signals import post_delete
 from django.core.files.storage import FileSystemStorage
 
 # Create your models here.
@@ -71,21 +70,12 @@ class Image(models.Model):
     photo = models.ImageField(upload_to="images/", storage=UUIDStorage)
     grayscale = models.ImageField(upload_to="images/grayscale/", blank=True, null=True, storage=UUIDStorage)
     normalization = models.ImageField(upload_to="images/normalization/", blank=True, null=True, storage=UUIDStorage)
+    grayscaleProcessed = models.ImageField(upload_to="images/gray/", blank=True, null=True, storage=UUIDStorage)
+    normalizationProcessed = models.ImageField(upload_to="images/normalized/", null=True, blank=True, storage=UUIDStorage)
 
     objects = ImageQuerySet.as_manager()
 
     def save(self, *args, **kwargs):
-        unified_path = os.path.dirname(self.photo.path)
-        existing_scatter_plots = [
-            os.path.join(f"{unified_path}scatter_plots", f"{self.title}_resolutions_scatter_plot.png"),
-            os.path.join(f"{unified_path}scatter_plots", f"{self.title}_sizes_histogram.png"),
-            os.path.join(f"{unified_path}scatter_plots", f"{self.title}_mean_color_distribution_bar_plot.png"),
-        ]
-
-        for plot_path in existing_scatter_plots:
-            if os.path.exists(plot_path):
-                os.remove(plot_path)
-
         super().save(*args, **kwargs)
         if not self.title and self.photo:
             self.title = os.path.splitext(os.path.basename(self.photo.name))[0]
@@ -96,34 +86,28 @@ class Image(models.Model):
         if self.photo and not self.normalization:
             self.normalization.name = getImageUtility.generate_normalization(self.photo)
 
+        if self.photo and not self.grayscaleProcessed:
+            self.grayscaleProcessed.name = getImageUtility.generate_gray_processed(self.photo)
+
+        if self.photo and not self.normalizationProcessed:
+            self.normalizationProcessed.name = getImageUtility.generate_normalized_processed(self.photo)
+
         super().save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
         self.delete_image(self.photo)
         self.delete_image(self.grayscale)
         self.delete_image(self.normalization)
+        self.delete_image(self.grayscaleProcessed)
+        self.delete_image(self.normalizationProcessed)
+        
         super().delete(*args, **kwargs)
-
-    
-    def delete_scatter_plots(self):
-        unified_path = os.path.dirname(self.photo.path)
-        resolutions_plot_path = os.path.join(f"{unified_path}scatter_plots", f"{self.title}_resolutions_scatter_plot.png")
-        sizes_plot_path = os.path.join(f"{unified_path}scatter_plots", f"{self.title}_sizes_histogram.png")
-        color_distribution_plot_path = os.path.join(f"{unified_path}scatter_plots", f"{self.title}_mean_color_distribution_bar_plot.png")
-
-        for plot_path in [resolutions_plot_path, sizes_plot_path, color_distribution_plot_path]:
-            if os.path.exists(plot_path):
-                os.remove(plot_path)
 
     def delete_image(self, field):
         if field:
             file_path = field.path
             if os.path.isfile(file_path):
                 os.remove(file_path)
-
-@receiver(post_delete, sender=Image)
-def delete_scatter_plots(sender, instance, **kwargs):
-    instance.delete_scatter_plots()
 
 class AudioQuerySet(models.QuerySet):
     def delete(self):

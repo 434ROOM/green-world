@@ -5,13 +5,8 @@ from rest_framework.parsers import FormParser, MultiPartParser
 from base.models import Video, Image, Audio
 from .serializers import GetVideoSerializer, GetImageSerializer, GetAudioSerializer, AddVideoSerializer, AddImageSerializer, AddAudioSerializer
 from rest_framework.views import APIView
-from django.http import JsonResponse
-from django.views import View
 from django.db.models import Q
-import datetime, os, cv2, platform
-import matplotlib.pyplot as plt
-import numpy as np
-from pathlib import PureWindowsPath, Path
+import datetime, os
 
 @api_view(['GET','DELETE']) 
 def getVideo(request):
@@ -25,7 +20,7 @@ def getVideo(request):
 
         if id and q:
             videos = Video.objects.filter(
-                Q(id=(int)(id)) | 
+                Q(id=(int)(id)) & 
                 Q(title=q)
             )
         elif id and not q:
@@ -180,7 +175,9 @@ class addImage(APIView):
                              "title":new_image.title,
                              "photo":new_image.photo.url,
                              "grayscale":new_image.grayscale.url,
-                             "normalization":new_image.normalization.url
+                             "normalization":new_image.normalization.url,
+                             "grayscaleProcessed":new_image.grayscaleProcessed.url,
+                             "normalizationProcessed":new_image.normalizationProcessed.url
                             })
             
             code = status.HTTP_201_CREATED
@@ -194,131 +191,6 @@ class addImage(APIView):
             new_dict = {"code":code, "msg":msg, "time":time, "data":{}}
             return Response(new_dict, status=status.HTTP_400_BAD_REQUEST)
         
-
-class ImageScatterPlotView(View):
-    unified_path, unified_url = "", ""
-    resolution_base_name = "resolution_plot"
-    size_base_name = "size_plot"
-    color_base_name = "color_plot"
-    folder = "plots"
-
-    def get_scatter_plot_url(self, name):
-        url = Path(self.unified_url) / self.folder / f"{name}.png"
-        if platform.system().lower() == 'windows':
-            return PureWindowsPath(url)
-        return url
-    
-    def get_scatter_plot_path(self, name):
-        path = Path(self.unified_path) / f"{name}.png"
-        if platform.system().lower() == 'windows':
-            return PureWindowsPath(path)
-        return path
-
-    def generate_scatter_plots(self, images):
-        resolutions = []
-        sizes = []
-        color_distributions = []
-
-        for image in images:
-            img = cv2.imdecode(np.fromfile(image.photo.path, dtype=np.uint8), -1)
-            resolution = img.shape[:2]
-            resolutions.append(resolution)
-            sizes.append(os.path.getsize(image.photo.path))
-            color_distributions.append(np.bincount(img.flatten(), minlength=256))
-
-        resolutions = np.array(resolutions)
-        sizes = np.array(sizes)
-        color_distributions = np.array(color_distributions)
-
-        resolution_path = self.get_scatter_plot_path(self.resolution_base_name)
-        size_path = self.get_scatter_plot_path(self.size_base_name)
-        color_path = self.get_scatter_plot_path(self.color_base_name)
-
-        if not os.path.exists(resolution_path):
-            plt.scatter(resolutions[:, 0], resolutions[:, 1])
-            plt.title("Distribution of Image Resolutions")
-            plt.xlabel("Width (pixels)")
-            plt.ylabel("Height (pixels)")
-            plt.savefig(resolution_path)
-            plt.close()
-
-        if not os.path.exists(size_path):
-            plt.hist(sizes)
-            plt.title("Distribution of Image Sizes")
-            plt.xlabel("File Size (bytes)")
-            plt.ylabel("Number of Images")
-            plt.savefig(size_path)
-            plt.close()
-
-        # Generate bar plot for mean color distribution
-        mean_color_distribution = np.mean(color_distributions, axis=0)
-        if not os.path.exists(color_path):
-            plt.bar(np.arange(256), mean_color_distribution)
-            plt.title("Mean Color Distribution")
-            plt.xlabel("Color Value")
-            plt.ylabel("Number of Pixels")
-            plt.savefig(color_path)
-            plt.close()
-
-        return (
-            self.get_scatter_plot_url(self.resolution_base_name),
-            self.get_scatter_plot_url(self.size_base_name),
-            self.get_scatter_plot_url(self.color_base_name),
-        )
-
-    def get(self, request, *args, **kwargs):
-        images = Image.objects.all()
-        time = datetime.datetime.now()
-
-        if not images:
-            code = status.HTTP_204_NO_CONTENT
-            msg = "Database is currently empty"
-            resolutions_plot_url = ""
-            sizes_plot_url = ""
-            color_distribution_plot_url = ""
-
-            response_data = {
-                "code":code,
-                "msg":msg,
-                "time":time,
-                "resolutions_plot_url": resolutions_plot_url,
-                "sizes_plot_url": sizes_plot_url,
-                "color_distribution_plot_url": color_distribution_plot_url,
-            }
-
-        else:
-            code = status.HTTP_201_CREATED
-            msg = "Get image utility successfully"
-            self.unified_path = os.path.dirname(images[0].photo.path)
-            self.unified_url = os.path.dirname(images[0].photo.url)
-
-            scatter_plots_exist = (
-                os.path.exists(self.get_scatter_plot_path(self.resolution_base_name))
-                and os.path.exists(self.get_scatter_plot_path(self.size_base_name))
-                and os.path.exists(self.get_scatter_plot_path(self.color_base_name))
-            )
-
-            if not scatter_plots_exist:
-                (
-                    resolutions_plot_url,
-                    sizes_plot_url,
-                    color_distribution_plot_url,
-                ) = self.generate_scatter_plots(images)
-            else:
-                resolutions_plot_url = str(self.get_scatter_plot_url(self.resolution_base_name))
-                sizes_plot_url = str(self.get_scatter_plot_url(self.size_base_name))
-                color_distribution_plot_url = str(self.get_scatter_plot_url(self.color_base_name))
-            response_data = {
-                "code":code,
-                "msg":msg,
-                "time":time,
-                "resolutions_plot_url": resolutions_plot_url,
-                "sizes_plot_url": sizes_plot_url,
-                "color_distribution_plot_url": color_distribution_plot_url,
-            }
-
-        return JsonResponse(response_data)
-
 @api_view(['GET', 'DELETE'])
 def getAudio(request):
     new_dict = {}

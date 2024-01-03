@@ -1,1 +1,0 @@
-spectrogram_save_directory
