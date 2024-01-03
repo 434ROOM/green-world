@@ -9,7 +9,7 @@
 
                     <div v-if="current == switchData[0]">
                         <a-form :model="loginFormState" name="normal_login" class="login-form" @finish="loginFinish"
-                            @finishFailed="loginFinishFailed">
+                            @finishFailed="loginFinishFailed" @submit="loginRequest">
                             <a-form-item name="email" :rules="emailRules">
                                 <a-input v-model:value="loginFormState.email" placeholder="邮箱">
                                     <template #prefix>
@@ -49,7 +49,7 @@
 
                     <div v-if="current == switchData[1]">
                         <a-form :model="registerFormState" name="normal_login" class="login-form" @finish="registerFinish"
-                            @finishFailed="registerFinishFailed">
+                            @finishFailed="registerFinishFailed" @submit="registerRequest">
                             <a-form-item name="email" :rules="emailRules">
                                 <a-input v-model:value="registerFormState.email" placeholder="邮箱">
                                     <template #prefix>
@@ -163,6 +163,9 @@ const loginFinishFailed = (errorInfo: any) => {
 const loginDisabled = computed(() => {
     return !(loginFormState.email && loginFormState.password && loginFormState.rule);
 });
+function loginRequest(){
+
+}
 
 // 注册表单
 interface RegisterFormState {
@@ -192,6 +195,9 @@ const registerDisabled = computed(() => {
     let isSame = registerFormState.password === registerFormState.confirm;
     return !(isFinish && isSame);
 });
+function registerRequest(){
+
+}
 
 </script>
 
