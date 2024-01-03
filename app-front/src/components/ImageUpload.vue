@@ -3,7 +3,7 @@
         {{ isRefresh ? "Loading" : "刷新列表" }}
     </a-button>
     <div class="clearfix">
-        <a-upload v-model:file-list="fileList" :custom-request="handleUpload" list-type="picture-card" :multiple="true"
+        <a-upload v-model:file-list="fileList" :custom-request="handleUpload" list-type="picture-card" :multiple="false"
             @preview="handlePreview" accept="image/png, image/jpeg" :before-upload="beforeUpload" @change="handleChange"
             @remove="beforeDelete">
             <div v-if="fileList.length < 8">
