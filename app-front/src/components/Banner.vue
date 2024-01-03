@@ -1,7 +1,8 @@
 <template>
   <a-carousel autoplay class="banner" :autoplaySpeed="10000">
     <div>
-      <video autoplay muted loop src="../assets/images/banner/1.mp4"></video>
+      <video autoplay muted loop preload="auto" x5-playsinline="true" playsinline="true" webkit-playsinline="true"
+        x5-video-player-fullscreen="false" src="../assets/images/banner/1.mp4"></video>
       <div class="text">
         <h1>我们与自然，<span class="nature">和谐共生</span></h1>
         <p>我们的地球是人类的家园，也是所有生命的摇篮。</p>
@@ -117,4 +118,5 @@
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-}</style>
+}
+</style>

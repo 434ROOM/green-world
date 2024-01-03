@@ -64,6 +64,7 @@
             <a-descriptions title="处理结果" bordered :column="{ xxl: 2, xl: 2, lg: 2, md: 2, sm: 2, xs: 1 }">
                 <a-descriptions-item label="文件名">{{ imageInfo.title }}</a-descriptions-item>
                 <a-descriptions-item label="文件 id">{{ imageInfo.id }}</a-descriptions-item>
+                <a-descriptions-item label="图像宽高">{{ imageInfo.width }} x {{ imageInfo.height }}</a-descriptions-item>
                 <a-descriptions-item label="原始图像">
                     <div style="width: 100%; max-width: 300px; margin: auto;">
                         <a-image width="100%" :src="imageInfo.photo"></a-image>
@@ -81,12 +82,12 @@
                 </a-descriptions-item>
                 <a-descriptions-item label="灰度图">
                     <div style="width: 100%; max-width: 300px; margin: auto;">
-                        <a-image width="100%" :src="imageInfo.normalization"></a-image>
+                        <a-image width="100%" :src="imageInfo.grayscaleProcessed"></a-image>
                     </div>
                 </a-descriptions-item>
                 <a-descriptions-item label="归一化图">
                     <div style="width: 100%; max-width: 300px; margin: auto;">
-                        <a-image width="100%" :src="imageInfo.normalization"></a-image>
+                        <a-image width="100%" :src="imageInfo.normalizationProcessed"></a-image>
                     </div>
                 </a-descriptions-item>
             </a-descriptions>
@@ -154,9 +155,13 @@ function requestImageInfo(id) {
                 const newImageInfo = {
                     id: res.data.data[0].id,
                     title: res.data.data[0].title,
+                    width: res.data.data[0].width,
+                    height: res.data.data[0].height,
                     photo: Server.url + res.data.data[0].photo,
                     grayscale: Server.url + res.data.data[0].grayscale,
                     normalization: Server.url + res.data.data[0].normalization,
+                    grayscaleProcessed: Server.url + res.data.data[0].grayscaleProcessed,
+                    normalizationProcessed: Server.url + res.data.data[0].normalizationProcessed,
                 };
                 imageInfo.value = newImageInfo;
                 //console.log(imageInfo.value);
