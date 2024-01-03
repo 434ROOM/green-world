@@ -42,6 +42,12 @@ INSTALLED_APPS = [
     "base.apps.BaseConfig",
     "api",
     "corsheaders",
+    'allauth',
+    'allauth.account',
+    # 'rest_framework.authtoken',
+    # 'dj_rest_auth',
+    # 'dj_rest_auth.registration',
+    # 'django.contrib.sites',
 ]
 
 MIDDLEWARE = [
@@ -53,6 +59,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 CORS_ORIGIN_ALLOW_ALL = True
@@ -171,3 +178,11 @@ CORS_ALLOW_HEADERS = (
     "x-requested-with",
     "Pragma",
 )
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}
+
+AUTH_USER_MODEL = 'base.UserData'

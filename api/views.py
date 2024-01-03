@@ -1,20 +1,29 @@
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.parsers import FormParser, MultiPartParser
 from base.models import Video, Image, Audio
-from .serializers import GetVideoSerializer, GetImageSerializer, GetAudioSerializer, AddVideoSerializer, AddImageSerializer, AddAudioSerializer
+from .serializers import GetVideoSerializer, GetImageSerializer, GetAudioSerializer, AddVideoSerializer, AddImageSerializer, AddAudioSerializer, UserSerializer
 from rest_framework.views import APIView
 from django.db.models import Q
 import datetime, os
 
-@api_view(['GET','DELETE']) 
+class RegisterView(APIView):
+    def post(self, request):
+        serializer = UserSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
+
+@api_view(['GET','DELETE'])
 def getVideo(request):
     new_dict = {}
     msg = ""
     time = datetime.datetime.now()
 
     if request.method == 'GET':
+        print("USER: ", request.user)
         q = request.GET.get('title') if request.GET.get('title') else ""
         id = request.GET.get('id') if request.GET.get('id') else ""
 
@@ -72,6 +81,7 @@ class addVideo(APIView):
     serializer_class = AddVideoSerializer
 
     def post(self, request, *args, **kwargs):
+        # request.data['user'] = request.user.id
         serializer = self.serializer_class(data=request.data)
         new_dict = {}
         time = datetime.datetime.now()
@@ -174,6 +184,8 @@ class addImage(APIView):
             new_data.update({"id":new_image.id,
                              "title":new_image.title,
                              "photo":new_image.photo.url,
+                             "width":new_image.width,
+                             "height":new_image.height,
                              "grayscale":new_image.grayscale.url,
                              "normalization":new_image.normalization.url,
                              "grayscaleProcessed":new_image.grayscaleProcessed.url,
