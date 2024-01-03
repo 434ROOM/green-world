@@ -55,7 +55,6 @@ export default {
 <style scoped>
 .container {
     width: 100%;
-    height: calc(100vh - 64px);
     margin-top: 64px;
     padding: 0;
 }
@@ -63,12 +62,13 @@ export default {
 .right {
     width: 100%;
     height: 100%;
-    overflow: auto;
     margin-left: 200px;
+    overflow: auto;
 }
 
 .content {
     width: 100%;
+    height: 100%;
     min-height: calc(100vh - 64px);
     background-color: #fff;
     padding: 2rem 3rem;
