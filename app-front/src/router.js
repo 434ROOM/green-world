@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
+import { message } from 'ant-design-vue';
 //Pages 文件名要大写
 
 const routes = [
@@ -14,7 +15,8 @@ const routes = [
     path: '/',
     name: 'Home',
     meta: {
-      title: '首页'
+      title: '首页',
+      requireAuth: false,
     },
     component: () => import('./pages/Home.vue')
   },
@@ -30,7 +32,8 @@ const routes = [
     path: '/about',
     name: 'About',
     meta: {
-      title: '关于我们'
+      title: '关于我们',
+      requireAuth: false,
     },
     component: () => import('./pages/About.vue')
   },
@@ -38,7 +41,8 @@ const routes = [
     path: '/video',
     name: 'Video',
     meta: {
-      title: '视频交互'
+      title: '视频交互',
+      requireAuth: true,
     },
     component: () => import('./pages/Video.vue')
   },
@@ -46,7 +50,8 @@ const routes = [
     path: '/video/lib',
     name: 'VideoLib',
     meta: {
-      title: '视频库'
+      title: '视频库',
+      requireAuth: true,
     },
     component: () => import('./pages/VideoLib.vue')
   },
@@ -54,7 +59,8 @@ const routes = [
     path: '/audio',
     name: 'Audio',
     meta: {
-      title: '音频交互'
+      title: '音频交互',
+      requireAuth: true,
     },
     component: () => import('./pages/Audio.vue')
   },
@@ -62,7 +68,8 @@ const routes = [
     path: '/audio/lib',
     name: 'AudioLib',
     meta: {
-      title: '音频库'
+      title: '音频库',
+      requireAuth: true,
     },
     component: () => import('./pages/AudioLib.vue')
   },
@@ -70,7 +77,8 @@ const routes = [
     path: '/image',
     name: 'Image',
     meta: {
-      title: '图像交互'
+      title: '图像交互',
+      requireAuth: true,
     },
     component: () => import('./pages/Image.vue')
   },
@@ -78,7 +86,8 @@ const routes = [
     path: '/image/lib',
     name: 'ImageLib',
     meta: {
-      title: '图像库'
+      title: '图像库',
+      requireAuth: true,
     },
     component: () => import('./pages/ImageLib.vue')
   },
@@ -86,7 +95,8 @@ const routes = [
     path:'/login',
     name:'Login',
     meta:{
-      title:'登录'
+      title:'登录',
+      requireAuth:false,
     },
     component:()=>import('./pages/Login.vue')
   },
@@ -94,7 +104,8 @@ const routes = [
     path: '/:catchAll(.*)',
     name: '404',
     meta: {
-      title: '404 Not Found'
+      title: '404 Not Found',
+      requireAuth: false,
     },
     component: () => import('./pages/404.vue'),
   },
@@ -119,6 +130,21 @@ router.beforeEach((to, from) => {
   // 设置页面标题
   let wholeTitle = to.meta.title + " | GreenWorld - 人与自然和谐共生";
   document.title = wholeTitle;
+  // 判断该路由是否需要登录权限
+  if (to.meta.requireAuth) {
+    // 通过vuex state获取当前的token是否存在
+    // let token = store.state.token;
+    let token = localStorage.getItem('token');
+    if (token) {
+      return true;
+    } else {
+      message.info('访问此页面需要登录');
+      router.replace({
+        path: '/login',
+        query: { redirect: to.fullPath }
+      })
+    }
+  }
   return true;
 });
 
