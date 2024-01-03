@@ -53,6 +53,11 @@ def generate_normalized_processed(photo):
 
         return get_image_url(photo, "normalized")
 
+def getUtility(photo):
+    if photo:
+        original_image_path = photo.path
+        image = cv2.imdecode(np.fromfile(original_image_path, dtype=np.uint8), -1)
+        return image.shape[:2]
 
 
 def get_image_path(photo, folder):
