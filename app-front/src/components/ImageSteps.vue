@@ -79,6 +79,16 @@
                         <a-image width="100%" :src="imageInfo.normalization"></a-image>
                     </div>
                 </a-descriptions-item>
+                <a-descriptions-item label="灰度图">
+                    <div style="width: 100%; max-width: 300px; margin: auto;">
+                        <a-image width="100%" :src="imageInfo.normalization"></a-image>
+                    </div>
+                </a-descriptions-item>
+                <a-descriptions-item label="归一化图">
+                    <div style="width: 100%; max-width: 300px; margin: auto;">
+                        <a-image width="100%" :src="imageInfo.normalization"></a-image>
+                    </div>
+                </a-descriptions-item>
             </a-descriptions>
 
         </div>
