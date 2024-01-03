@@ -83,6 +83,14 @@ const routes = [
     component: () => import('./pages/ImageLib.vue')
   },
   {
+    path:'/login',
+    name:'Login',
+    meta:{
+      title:'登录'
+    },
+    component:()=>import('./pages/Login.vue')
+  },
+  {
     path: '/:catchAll(.*)',
     name: '404',
     meta: {
