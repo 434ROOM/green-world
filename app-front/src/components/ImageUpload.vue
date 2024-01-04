@@ -37,6 +37,7 @@ import {
 } from 'ant-design-vue';
 
 import Server from '../serverConfig.js';
+import JWTToken from '@/JWTToken';
 
 // 图像上传前的检查
 const beforeUpload = file => {
@@ -100,6 +101,7 @@ function handleUpload(data) {
         data: formData,
         headers: {
             'Content-Type': 'multipart/form-data',
+            Authorization: 'Bearer ' + JWTToken.getAccessToken(),
         },
         onUploadProgress: (progressEvent) => {
             const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
@@ -134,6 +136,7 @@ function handleChange(data) {
             url: Server.apiUrl + '/image' + '?id=' + file.uid,
             headers: {
                 'Content-Type': 'application/json',
+                Authorization: 'Bearer ' + JWTToken.getAccessToken(),
             },
         })
             .then((res) => {
@@ -182,7 +185,10 @@ function getImageList() {
     axios({
         method: 'get',
         url: Server.apiUrl + '/image',
-        accept: 'application/json',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + JWTToken.getAccessToken(),
+        },
     })
         .then((res) => {
             if (res.status === 200) {

@@ -44,6 +44,7 @@ import {
 } from 'ant-design-vue';
 
 import Server from '../serverConfig.js';
+import JWTToken from '@/JWTToken.js';
 
 import audioIcon from '../assets/images/interacteion/icon-audio.png';
 
@@ -92,12 +93,14 @@ function handleUpload(data) {
     const formData = new FormData();
     formData.append('audio', file);
 
+    const access_token = JWTToken.getAccessToken();
     axios({
         method: 'post',
         url: Server.apiUrl + '/add-audio',
         data: formData,
         headers: {
             'Content-Type': 'multipart/form-data',
+            Authorization: 'Bearer ' + access_token,
         },
         onUploadProgress: (progressEvent) => {
             const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
@@ -128,11 +131,13 @@ function handleUpload(data) {
 function handleChange(data) {
     let { file, fileList } = data;
     if (file.status === 'removed') {
+        const access_token = JWTToken.getAccessToken();
         axios({
             method: 'delete',
             url: Server.apiUrl + '/audio' + '?id=' + file.uid,
             headers: {
                 'Content-Type': 'application/json',
+                Authorization: 'Bearer ' + access_token,
             },
         })
             .then((res) => {
@@ -183,7 +188,10 @@ function getAudioList() {
     axios({
         method: 'get',
         url: Server.apiUrl + '/audio',
-        accept: 'application/json',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + JWTToken.getAccessToken(),
+        },
     })
         .then((res) => {
             if (res.status === 200) {

@@ -97,6 +97,9 @@ import axios from 'axios';
 import Server from '../serverConfig.js';
 import { LoadingOutlined } from '@ant-design/icons-vue';
 import { h } from 'vue';
+
+import JWTToken from '@/JWTToken';
+
 const indicator = h(LoadingOutlined, {
     style: {
         fontSize: '4rem',
@@ -139,7 +142,10 @@ function requestVideoInfo(id) {
     axios({
         method: 'get',
         url: Server.apiUrl + '/video?id=' + id,
-        accept: 'application/json',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + JWTToken.getAccessToken(),
+        },
     })
         .then((res) => {
             if (res.data.code === 200) {
@@ -179,7 +185,10 @@ function getVideoList() {
     axios({
         method: 'get',
         url: Server.apiUrl + '/video',
-        accept: 'application/json',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + JWTToken.getAccessToken(),
+        },
     })
         .then((res) => {
             if (res.status === 200) {

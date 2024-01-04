@@ -91,9 +91,12 @@
 import { ref } from 'vue';
 import { message } from 'ant-design-vue';
 import axios from 'axios';
-import Server from '../serverConfig.js';
 import { LoadingOutlined } from '@ant-design/icons-vue';
 import { h } from 'vue';
+
+import Server from '../serverConfig.js';
+import JWTToken from '@/JWTToken.js';
+
 const indicator = h(LoadingOutlined, {
     style: {
         fontSize: '4rem',
@@ -133,10 +136,14 @@ function selectAudio() {
 
 const audioInfo = ref({});
 function requestAudioInfo(id) {
+    const access_token = JWTToken.getAccessToken();
     axios({
         method: 'get',
         url: Server.apiUrl + '/audio?id=' + id,
-        accept: 'application/json',
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: 'Bearer ' + access_token,
+        },
     })
         .then((res) => {
             if (res.data.code === 200) {
@@ -170,10 +177,14 @@ const audioList = ref([]);
 function getAudioList() {
     const getLoading = message.loading('音频列表加载中...', 0);
     isLoadding.value = true;
+    const access_token = JWTToken.getAccessToken();
     axios({
         method: 'get',
         url: Server.apiUrl + '/audio',
-        accept: 'application/json',
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: 'Bearer ' + access_token,
+        },
     })
         .then((res) => {
             if (res.status === 200) {
