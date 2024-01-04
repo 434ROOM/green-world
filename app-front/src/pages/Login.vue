@@ -168,34 +168,48 @@ const loginDisabled = computed(() => {
     return !(loginFormState.email && loginFormState.password && loginFormState.rule);
 });
 function loginRequest() {
-    // 登录请求
     const formData = new FormData();
     formData.append('email', loginFormState.email);
     formData.append('password', loginFormState.password);
 
-    // 构造axios请求，注意headers应该是配置对象的一部分
     axios.post(serverConfig.apiUrl + '/login', formData, {
         headers: {
             'Content-Type': 'multipart/form-data'
         }
     })
         .then((res) => {
-            if (res.status === 200) { // 在axios中，响应状态码通常在res.data中，这里可能需要调整
-                // 假设JWTToken是一个对象，具有setAccessToken和setRefreshToken方法
-                JWTToken.setAccessToken(res.data.access);
-                JWTToken.setRefreshToken(res.data.refresh);
-                message.success('登录成功！');
-                // 登录成功后跳转到之前的页面
-                //console.log(redirect);
-                router.push({ path: redirect });
+            if (res.status >= 200 && res.status < 300) {
+                const responseData = res.data;
+                if (responseData && responseData.access && responseData.refresh) {
+                    JWTToken.setAccessToken(responseData.access);
+                    JWTToken.setRefreshToken(responseData.refresh);
+                    message.success('登录成功！');
+                    router.push({ path: redirect });
+                } else {
+                    message.error('登录失败，请重试！');
+                }
             } else {
-                message.error(res.data.message); // 响应数据可能在res.data中
+                message.error('登录失败，请重试！'); // 通用的错误提示
             }
         })
         .catch((err) => {
-            console.error(err);
+            if (err.response && err.response.data) {
+                // 处理响应错误，如果服务器返回了错误信息
+                if (err.response.status === 401) {
+                    message.error('用户名或密码错误！');
+                    loginFormState.password = '';
+                } else {
+                    message.error(err.response.data.msg || '登录失败，请重试！');
+                }
+             } 
+            else {
+                // 处理其他类型的错误，比如网络错误等
+                console.error(err);
+                message.error('登录失败，请检查网络连接并重试！');
+            }
         });
 }
+
 
 
 // 注册表单
@@ -247,7 +261,19 @@ function registerRequest() {
             }
         })
         .catch((err) => {
-            console.error(err);
+            if (err.response && err.response.data) {
+                // 处理响应错误，如果服务器返回了错误信息
+                if (err.response.status === 400) {
+                    message.error('此邮箱已被注册！');
+                } else {
+                    message.error(err.response.data.msg || '登录失败，请重试！');
+                }
+             } 
+            else {
+                // 处理其他类型的错误，比如网络错误等
+                console.error(err);
+                message.error('登录失败，请检查网络连接并重试！');
+            }
         });
 }
 
