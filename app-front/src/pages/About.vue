@@ -14,14 +14,14 @@
                             <a-col :span="12" :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
                                 <a-card hoverable class="card">
                                     <a-avatar class="avatar" size="large"
-                                        src="http://q1.qlogo.cn/g?b=qq&nk=1905236008&s=640" />
+                                        src="https://q1.qlogo.cn/g?b=qq&nk=1905236008&s=640" />
                                     <a-card-meta title="申可" description="数媒22-2 后端开发" />
                                 </a-card>
                             </a-col>
                             <a-col :span="12" :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
                                 <a-card hoverable class="card">
                                     <a-avatar class="avatar" size="large"
-                                        src="http://q1.qlogo.cn/g?b=qq&nk=1533180937&s=640" />
+                                        src="https://q1.qlogo.cn/g?b=qq&nk=1533180937&s=640" />
                                     <a-card-meta title="刘子豪" description="数媒22-1 前端开发" />
                                 </a-card>
                             </a-col>
