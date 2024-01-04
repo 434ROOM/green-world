@@ -94,6 +94,38 @@ function refreshToken() {
     }
 }
 
+function getUsername() {
+    const access_token = localStorage.getItem("access_token");
+    const decoded_access_token = access_token ? decodeJwt(access_token) : null;
+    if (decoded_access_token == null) {
+        return null;
+    }
+    return decoded_access_token.payload.username;
+}
+
+function getEmail() {
+    const access_token = localStorage.getItem("access_token");
+    const decoded_access_token = access_token ? decodeJwt(access_token) : null;
+    if (decoded_access_token == null) {
+        return null;
+    }
+    return decoded_access_token.payload.email;
+}
+
+function getUserId() {
+    const access_token = localStorage.getItem("access_token");
+    const decoded_access_token = access_token ? decodeJwt(access_token) : null;
+    if (decoded_access_token == null) {
+        return null;
+    }
+    return decoded_access_token.payload.user_id;
+}
+
+function logout() {
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
+}
+
 export default {
     hasToken,
     getAccessToken,
@@ -103,5 +135,9 @@ export default {
     decodeJwt,
     isVaildRefreshToken,
     isVaildAccessToken,
-    refreshToken
+    refreshToken,
+    getUsername,
+    getEmail,
+    getUserId,
+    logout
 };
