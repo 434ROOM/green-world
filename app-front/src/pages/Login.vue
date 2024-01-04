@@ -199,7 +199,7 @@ function loginRequest() {
                     message.error('用户名或密码错误！');
                     loginFormState.password = '';
                 } else {
-                    message.error(err.response.data.msg || '登录失败，请重试！');
+                    message.error(err.response.data.msg || '登录失败，请稍后重试！');
                 }
              } 
             else {
@@ -266,13 +266,13 @@ function registerRequest() {
                 if (err.response.status === 400) {
                     message.error('此邮箱已被注册！');
                 } else {
-                    message.error(err.response.data.msg || '登录失败，请重试！');
+                    message.error(err.response.data.msg || '注册失败，请稍后重试！');
                 }
              } 
             else {
                 // 处理其他类型的错误，比如网络错误等
                 console.error(err);
-                message.error('登录失败，请检查网络连接并重试！');
+                message.error('注册失败，请检查网络连接并重试！');
             }
         });
 }
