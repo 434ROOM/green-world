@@ -80,7 +80,12 @@ class UserSerializer(serializers.ModelSerializer):
             email=validated_data['email'],
             name=validated_data['name']
         )
-        
+
         user.set_password(validated_data['password'])
         user.save()
         return user
+    
+class AvatarSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserData
+        fields = ['avatar']

@@ -52,6 +52,11 @@ class UserData(AbstractUser):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['name']
 
+    def delete(self, *args, **kwargs):
+        if self.avatar:
+            if os.path.isfile(self.avatar.path):
+                os.remove(self.avatar.path)
+
     def __str__(self):
         return self.name
 
