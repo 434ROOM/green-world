@@ -133,12 +133,9 @@ router.beforeEach((to, from) => {
   document.title = wholeTitle;
   // 判断该路由是否需要登录权限
   if (to.meta.requireAuth) {
-    // 通过vuex state获取当前的token是否存在
-    // let token = store.state.token;
-    let access_token = localStorage.getItem('access_token');
-    if (access_token && JWTToken.isVaildAccessToken()) {
+    if (JWTToken.hasToken() && JWTToken.isVaildAccessToken()) {
       return true;
-    } else if (access_token && !JWTToken.isVaildRefreshToken()) {
+    } else if (JWTToken.hasToken() && !JWTToken.isVaildRefreshToken()) {
       message.error('登录过期，请重新登录');
       router.replace({
         path: '/login',
@@ -153,8 +150,7 @@ router.beforeEach((to, from) => {
     }
   }
   if (to.path === '/login') {
-    let access_token = localStorage.getItem('access_token');
-    if (access_token && JWTToken.isVaildRefreshToken()) {
+    if (JWTToken.hasToken() && JWTToken.isVaildRefreshToken()) {
       message.success('您已登录，无需重复登录');
       router.replace({
         path: '/',
