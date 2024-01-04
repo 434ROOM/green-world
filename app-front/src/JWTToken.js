@@ -1,9 +1,7 @@
 import axios from "axios";
 import serverConfig from "./serverConfig";
 import { message } from "ant-design-vue";
-import { useRouter } from "vue-router";
-
-//const router = useRouter();
+import router from "./router";
 
 function hasToken() {
     return localStorage.getItem("access_token") != null && localStorage.getItem("refresh_token") != null;
