@@ -133,30 +133,30 @@ router.beforeEach((to, from) => {
   document.title = wholeTitle;
   // 判断该路由是否需要登录权限
   if (to.meta.requireAuth) {
-    if (JWTToken.hasToken() && JWTToken.isVaildRefreshToken()) {
-      return true;
-    } else if (JWTToken.hasToken() && !JWTToken.isVaildRefreshToken()) {
-      message.error('登录过期，请重新登录');
-      router.replace({
-        path: '/login',
-        query: { redirect: to.fullPath }
-      })
+    if (JWTToken.hasToken()) {
+      if (JWTToken.isVaildRefreshToken()) {
+        if (!JWTToken.isVaildAccessToken()) {
+          JWTToken.refreshToken();
+        }
+        return true;
+      } else {
+        message.error('登录过期，请重新登录');
+      }
     } else {
       message.info('访问此页面需要登录');
-      router.replace({
-        path: '/login',
-        query: { redirect: to.fullPath }
-      })
     }
+    router.replace({
+      path: '/login',
+      query: { redirect: to.fullPath }
+    });
   }
-  if (to.path === '/login') {
-    if (JWTToken.hasToken() && JWTToken.isVaildRefreshToken()) {
-      message.success('您已登录，无需重复登录');
-      router.replace({
-        path: '/',
-        query: { redirect: to.fullPath }
-      })
-    }
+  
+  if (to.path === '/login' && JWTToken.hasToken() && JWTToken.isVaildRefreshToken()) {
+    message.success('您已登录，无需重复登录');
+    router.replace({
+      path: '/',
+      query: { redirect: to.fullPath }
+    });
   }
   return true;
 });
