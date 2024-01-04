@@ -5,6 +5,26 @@
                 <img :src="logoSrc" alt="nav-logo" @mouseover="logoChange(true)" @mouseleave="logoChange(false)" />
             </RouterLink>
         </div>
+        <div class="login">
+            <a-button v-if="!isLogin" type="primary" shape="round" ghost>
+                <RouterLink to="/login">登录/注册</RouterLink>
+            </a-button>
+            <a-dropdown v-if="isLogin">
+                <a class="ant-dropdown-link" @click.prevent>
+                    <a-avatar>{{ avatar }}</a-avatar>
+                </a>
+                <template #overlay>
+                    <a-menu>
+                        <a-menu-item>
+                            <a href="">{{ username }}</a>
+                        </a-menu-item>
+                        <a-menu-item>
+                            <a :click="JWTToken.logout">注销</a>
+                        </a-menu-item>
+                    </a-menu>
+                </template>
+            </a-dropdown>
+        </div>
         <a-menu class="menu" v-model:selectedKeys="selectedKeys" theme="light" mode="horizontal">
             <!--注意：下面的key值与router.js中的name值对应，均需首字母大写-->
             <a-menu-item key="Home"><router-link to="/">首页</router-link></a-menu-item>
@@ -13,11 +33,15 @@
             <a-menu-item key="Image"><router-link to="/image">图像交互</router-link></a-menu-item>
             <a-menu-item key="About"><router-link to="/about">关于我们</router-link></a-menu-item>
         </a-menu>
+
     </a-layout-header>
 </template>
 
 <script lang="ts">
 import { ref } from 'vue';
+import { UserOutlined } from '@ant-design/icons-vue';
+
+import JWTToken from '@/JWTToken';
 
 import defaultSrc from '../assets/images/logo-text.png';
 import hoverSrc from '../assets/images/logo-text-green.png';
@@ -30,11 +54,27 @@ function logoChange(ishover: boolean) {
 const selectedKeys = ref<string[]>(['home']);
 const navbarClass = ref<string>('nav-header');
 
+const isLogin = ref<boolean>(false);
+const avatar = ref<string>('');
+const username = ref<string>('');
+
 export default {
+    components: {
+        UserOutlined,
+    },
     mounted() {
+        // 获取当前页面的路由名称
         let pageName = this.$route.name;
-        selectedKeys.value = [pageName];// 选中当前页面，如果name为其他默认不选中
-        window.addEventListener('scroll', this.handleScroll); // 监听滚动事件
+        selectedKeys.value = [pageName];
+        // 监听滚动事件
+        window.addEventListener('scroll', this.handleScroll);
+        // 判断是否登录
+        if (JWTToken.hasToken()) {
+            isLogin.value = true;
+        }
+        // 获取用户信息
+        username.value = JWTToken.getUsername();
+        avatar.value = username.value.substring(0, 1).toUpperCase();
     },
     beforeUnmount() {
         window.removeEventListener('scroll', this.handleScroll); // 在组件销毁前移除监听器
@@ -43,7 +83,7 @@ export default {
         handleScroll() {
             const scrollPosition = window.scrollY;
             // 在滚动一定距离后改变导航栏颜色
-            if (scrollPosition > 64) { // 假设滚动超过64像素
+            if (scrollPosition > 64) { // 滚动超过64像素
                 navbarClass.value = 'nav-header scrolled'
             } else {
                 navbarClass.value = 'nav-header'; // 恢复导航栏颜色
@@ -56,6 +96,10 @@ export default {
             logoChange,
             selectedKeys,
             navbarClass,
+            isLogin,
+            JWTToken,
+            avatar,
+            username,
         };
     },
 }
@@ -93,5 +137,10 @@ export default {
 .nav-header .logo img {
     width: 100%;
     transition: transform 0.3s ease
+}
+
+.login {
+    float: right;
+    margin: 0;
 }
 </style>
