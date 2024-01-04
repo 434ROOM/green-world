@@ -35,9 +35,9 @@ class AddVideoSerializer(serializers.ModelSerializer):
         model = Video
         fields = ['video_file']
 
-    def save(self, **kwargs):
+    def save(self, user, **kwargs):
         instance = Video(**self.validated_data)
-        instance.save()
+        instance.save(user)
         return instance
     
 class GetImageSerializer(serializers.ModelSerializer):
@@ -50,9 +50,9 @@ class AddImageSerializer(serializers.ModelSerializer):
         model = Image
         fields = ['photo']
     
-    def save(self, **kwargs):
+    def save(self, user, **kwargs):
         instance = Image(**self.validated_data)
-        instance.save()
+        instance.save(user)
         return instance
 
 class GetAudioSerializer(serializers.ModelSerializer):
@@ -65,9 +65,9 @@ class AddAudioSerializer(serializers.ModelSerializer):
         model = Audio
         fields = ['audio']
 
-    def save(self, **kwargs):
+    def save(self, user, **kwargs):
         instance = Audio(**self.validated_data)
-        instance.save()
+        instance.save(user)
         return instance
     
 class UserSerializer(serializers.ModelSerializer):
@@ -76,9 +76,11 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ["id", "email", "name", "password"]
 
     def create(self, validated_data):
-        user = UserData.objects.create(email=validated_data['email'],
-                                       name=validated_data['name']
-                                         )
+        user = UserData.objects.create(
+            email=validated_data['email'],
+            name=validated_data['name']
+        )
+        
         user.set_password(validated_data['password'])
         user.save()
         return user

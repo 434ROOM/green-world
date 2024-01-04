@@ -42,7 +42,17 @@ class RegisterView(APIView):
         serializer = UserSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(serializer.data)
+
+        new_data = {}
+        time = datetime.datetime.now()
+        new_data.update({
+            "code" : status.HTTP_201_CREATED,
+            "msg" : "User registered successfully",
+            "time" : time,
+            "data" : serializer.data
+        })
+
+        return Response(new_data, status.HTTP_201_CREATED)
 
 @api_view(['GET','DELETE'])
 @permission_classes([IsAuthenticated])
@@ -51,28 +61,28 @@ def getVideo(request):
     msg = ""
     time = datetime.datetime.now()
 
+    auth = request.headers.get('Authorization')
+    decoded_token = AccessToken(auth.split()[1]).payload
+    user_id = decoded_token['user_id']
+
     if request.method == 'GET':
         q = request.GET.get('title') if request.GET.get('title') else ""
         id = request.GET.get('id') if request.GET.get('id') else ""
-        auth = (request.headers.get('Authorization'))
-        token = AccessToken(auth.split()[1])
-        decoded_token = token.payload
-        print(decoded_token)
-
+        
         if id and q:
             videos = Video.objects.filter(
+                Q(user__id=user_id) &
                 Q(id=(int)(id)) & 
                 Q(title=q)
             )
         elif id and not q:
             videos = Video.objects.filter(
+                Q(user__id=user_id) &
                 Q(id=(int)(id))
             )
         elif not id and not q:
-            videos = Video.objects.all()
-        else:
             videos = Video.objects.filter(
-                Q(title__icontains=q)
+                Q(user__id=user_id)
             )
 
         if videos:
@@ -93,7 +103,10 @@ def getVideo(request):
         id = request.GET.get('id') if request.GET.get('id') else ""
 
         if id:
-            video = Video.objects.filter(id=(int)(id))
+            video = Video.objects.filter(
+                Q(user__id=user_id) &
+                Q(id=(int)(id))
+            )
 
         if not id or not video:
             code = status.HTTP_404_NOT_FOUND
@@ -107,7 +120,8 @@ def getVideo(request):
             new_dict.update({"code":code, "msg":msg, "time":time, "data":{}})
             return Response(new_dict, status=status.HTTP_200_OK)
 
-    
+
+@permission_classes([IsAuthenticated])
 class addVideo(APIView):
     parser_classes = (MultiPartParser, FormParser)
     serializer_class = AddVideoSerializer
@@ -118,19 +132,23 @@ class addVideo(APIView):
         time = datetime.datetime.now()
 
         if serializer.is_valid():
-            new_video = serializer.save()
+            new_video = serializer.save(request.user)
+            new_video.user = request.user
             video_file_name = os.path.splitext(os.path.basename(new_video.video_file.name))[0]
             new_data = {}
-            new_data.update({"id":new_video.id,
-                             "title":video_file_name,
-                             "video_file":new_video.video_file.url,
-                             "duration":new_video.duration,
-                             "frames":new_video.frames,
-                             "fps":new_video.fps,
-                             "width":new_video.width,
-                             "height":new_video.height,
-                             "cover":new_video.cover.url
-                            })
+            new_data.update({
+                "user_id":new_video.user.id,
+                "user_name":new_video.user.name,
+                "video_id":new_video.id,
+                "title":video_file_name,
+                "video_file":new_video.video_file.url,
+                "duration":new_video.duration,
+                "frames":new_video.frames,
+                "fps":new_video.fps,
+                "width":new_video.width,
+                "height":new_video.height,
+                "cover":new_video.cover.url
+            })
 
             code = status.HTTP_201_CREATED
             msg = "Video Uploaded Successfully"
@@ -143,11 +161,16 @@ class addVideo(APIView):
             new_dict = {"code":code, "msg":msg, "time":time, "data":{}}
             return Response(new_dict, status=status.HTTP_400_BAD_REQUEST)
     
-@api_view(['GET', "DELETE"]) 
+@api_view(['GET', "DELETE"])
+@permission_classes([IsAuthenticated])
 def getImage(request):
     new_dict = {}
     msg = ""
     time = datetime.datetime.now()
+
+    auth = request.headers.get('Authorization')
+    decoded_token = AccessToken(auth.split()[1]).payload
+    user_id = decoded_token['user_id']
 
     if request.method == 'GET':
         q = request.GET.get('title') if request.GET.get('title') else ""
@@ -155,18 +178,18 @@ def getImage(request):
 
         if id and q:
             images = Image.objects.filter(
-                Q(id=(int)(id)) | 
+                Q(user__id=user_id) &
+                Q(id=(int)(id)) & 
                 Q(title=q)
             )
         elif id and not q:
             images = Image.objects.filter(
+                Q(user__id=user_id) &
                 Q(id=(int)(id))
             )
         elif not id and not q:
-            images = Image.objects.all()
-        else:
             images = Image.objects.filter(
-                Q(title__icontains=q)
+                Q(user__id=user_id)
             )
 
         if images:
@@ -186,7 +209,10 @@ def getImage(request):
     elif request.method == 'DELETE':
         id = request.GET.get('id') if request.GET.get('id') else ""
         if id:
-            img = Image.objects.filter(id=(int)(id))
+            img = Image.objects.filter(
+                Q(user__id=user_id) &
+                Q(id=(int)(id))
+            )
     
         if not id or not img:
             code = status.HTTP_404_NOT_FOUND
@@ -210,18 +236,22 @@ class addImage(APIView):
         time = datetime.datetime.now()
 
         if serializer.is_valid():
-            new_image = serializer.save()
+            new_image = serializer.save(request.user)
+            new_image.user = request.user
+
             new_data = {}
-            new_data.update({"id":new_image.id,
-                             "title":new_image.title,
-                             "photo":new_image.photo.url,
-                             "width":new_image.width,
-                             "height":new_image.height,
-                             "grayscale":new_image.grayscale.url,
-                             "normalization":new_image.normalization.url,
-                             "grayscaleProcessed":new_image.grayscaleProcessed.url,
-                             "normalizationProcessed":new_image.normalizationProcessed.url
-                            })
+            new_data.update({
+                "id":new_image.id,
+                "user_id":new_image.user.id,
+                "title":new_image.title,
+                "photo":new_image.photo.url,
+                "width":new_image.width,
+                "height":new_image.height,
+                "grayscale":new_image.grayscale.url,
+                "normalization":new_image.normalization.url,
+                "grayscaleProcessed":new_image.grayscaleProcessed.url,
+                "normalizationProcessed":new_image.normalizationProcessed.url
+            })
             
             code = status.HTTP_201_CREATED
             msg = "Image Uploaded Successfully"
@@ -240,24 +270,28 @@ def getAudio(request):
     msg = ""
     time = datetime.datetime.now()
 
+    auth = request.headers.get('Authorization')
+    decoded_token = AccessToken(auth.split()[1]).payload
+    user_id = decoded_token['user_id']
+
     if request.method == 'GET':
         q = request.GET.get('title') if request.GET.get('title') else ""
         id = request.GET.get('id') if request.GET.get('id') else ""
 
         if id and q:
             audios = Audio.objects.filter(
-                Q(id=(int)(id)) | 
+                Q(user__id=user_id) &
+                Q(id=(int)(id)) & 
                 Q(title=q)
             )
         elif id and not q:
             audios = Audio.objects.filter(
+                Q(user__id=user_id) &
                 Q(id=(int)(id))
             )
         elif not id and not q:
-            audios = Audio.objects.all()
-        else:
             audios = Audio.objects.filter(
-                Q(title__icontains=q)
+                Q(user__id=user_id)
             )
 
         if audios:
@@ -273,10 +307,14 @@ def getAudio(request):
         serializer = GetAudioSerializer(audios, many=True)
         new_dict.update({"code":code, "msg":msg, "time":time, "data":serializer.data})
         return Response(new_dict, status=code)
+    
     elif request.method == 'DELETE':
         id = request.GET.get('id') if request.GET.get('id') else ""
         if id:
-            audio = Audio.objects.filter(id=(int)(id))
+            audio = Audio.objects.filter(
+                Q(user__id=user_id) &
+                Q(id=(int)(id))
+            )
 
         if not id or not audio:
             code = status.HTTP_404_NOT_FOUND
@@ -301,14 +339,17 @@ class addAudio(APIView):
 
         if serializer.is_valid():
             try:
-                new_audio = serializer.save()
+                new_audio = serializer.save(request.user)
+                new_audio.user = request.user
                 new_data = {}
-                new_data.update({"id":new_audio.id,
-                                "title":new_audio.title,
-                                "audio":new_audio.audio.url,
-                                "spectrogram":new_audio.spectrogram.url,
-                                "spectrum_diagram":new_audio.spectrum_diagram.url
-                                })
+                new_data.update({
+                    "id":new_audio.id,
+                    "user_id":new_audio.user.id,
+                    "title":new_audio.title,
+                    "audio":new_audio.audio.url,
+                    "spectrogram":new_audio.spectrogram.url,
+                    "spectrum_diagram":new_audio.spectrum_diagram.url
+                })
                 
                 code = status.HTTP_201_CREATED
                 msg = "Audio Uploaded Successfully"
