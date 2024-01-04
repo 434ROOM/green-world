@@ -106,16 +106,20 @@
 <script setup lang="ts">
 import GWNavbar from '@/components/Navbar.vue';
 import GWFooter from '@/components/Footer.vue';
-import { reactive, computed } from 'vue';
+import { reactive, computed, onMounted } from 'vue';
 import { MailOutlined, LockOutlined } from '@ant-design/icons-vue';
 import { ref } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { message } from 'ant-design-vue';
+import axios from 'axios';
+import serverConfig from '@/serverConfig';
+import JWTToken from '@/JWTToken.js';
 
 // 获取当前路由的查询参数对象
 const route = useRoute();
+const router = useRouter();
 const queryParams = route.query;
-const redirect = queryParams.redirect as string;
+const redirect = queryParams.redirect as string || '/';
 
 // 正则表达式验证邮箱格式
 function validateEmail(email: string) {
@@ -154,7 +158,7 @@ const loginFormState = reactive<LoginFormState>({
     rule: true,
 });
 const loginFinish = (values: any) => {
-    console.log('Success:', values);
+
 };
 
 const loginFinishFailed = (errorInfo: any) => {
@@ -163,9 +167,36 @@ const loginFinishFailed = (errorInfo: any) => {
 const loginDisabled = computed(() => {
     return !(loginFormState.email && loginFormState.password && loginFormState.rule);
 });
-function loginRequest(){
+function loginRequest() {
+    // 登录请求
+    const formData = new FormData();
+    formData.append('email', loginFormState.email);
+    formData.append('password', loginFormState.password);
 
+    // 构造axios请求，注意headers应该是配置对象的一部分
+    axios.post(serverConfig.apiUrl + '/login', formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+    })
+        .then((res) => {
+            if (res.status === 200) { // 在axios中，响应状态码通常在res.data中，这里可能需要调整
+                // 假设JWTToken是一个对象，具有setAccessToken和setRefreshToken方法
+                JWTToken.setAccessToken(res.data.access);
+                JWTToken.setRefreshToken(res.data.refresh);
+                message.success('登录成功！');
+                // 登录成功后跳转到之前的页面
+                //console.log(redirect);
+                router.push({ path: redirect });
+            } else {
+                message.error(res.data.message); // 响应数据可能在res.data中
+            }
+        })
+        .catch((err) => {
+            console.error(err);
+        });
 }
+
 
 // 注册表单
 interface RegisterFormState {
@@ -183,7 +214,7 @@ const registerFormState = reactive<RegisterFormState>({
 });
 
 const registerFinish = (values: any) => {
-    console.log('Success:', values);
+
 };
 
 const registerFinishFailed = (errorInfo: any) => {
@@ -195,8 +226,29 @@ const registerDisabled = computed(() => {
     let isSame = registerFormState.password === registerFormState.confirm;
     return !(isFinish && isSame);
 });
-function registerRequest(){
+function registerRequest() {
+    const formData = new FormData();
+    formData.append('email', registerFormState.email);
+    formData.append('name', registerFormState.email);
+    formData.append('password', registerFormState.password);
 
+    // 构造axios请求，注意headers应该是配置对象的一部分
+    axios.post(serverConfig.apiUrl + '/register', formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+    })
+        .then((res) => {
+            if (res.status === 200) { // 在axios中，响应状态码通常在res.data中，这里可能需要调整
+                message.success('注册成功，请登录！');
+                current.value = switchData[0];
+            } else {
+                message.error(res.data.message); // 响应数据可能在res.data中
+            }
+        })
+        .catch((err) => {
+            console.error(err);
+        });
 }
 
 </script>

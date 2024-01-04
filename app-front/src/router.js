@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import { message } from 'ant-design-vue';
+import JWTToken from './JWTToken.js';
 //Pages 文件名要大写
 
 const routes = [
@@ -92,13 +93,13 @@ const routes = [
     component: () => import('./pages/ImageLib.vue')
   },
   {
-    path:'/login',
-    name:'Login',
-    meta:{
-      title:'登录',
-      requireAuth:false,
+    path: '/login',
+    name: 'Login',
+    meta: {
+      title: '登录',
+      requireAuth: false,
     },
-    component:()=>import('./pages/Login.vue')
+    component: () => import('./pages/Login.vue')
   },
   {
     path: '/:catchAll(.*)',
@@ -134,13 +135,29 @@ router.beforeEach((to, from) => {
   if (to.meta.requireAuth) {
     // 通过vuex state获取当前的token是否存在
     // let token = store.state.token;
-    let token = localStorage.getItem('token');
-    if (token) {
+    let access_token = localStorage.getItem('access_token');
+    if (access_token && JWTToken.isVaildAccessToken()) {
       return true;
+    } else if (access_token && !JWTToken.isVaildRefreshToken()) {
+      message.error('登录过期，请重新登录');
+      router.replace({
+        path: '/login',
+        query: { redirect: to.fullPath }
+      })
     } else {
       message.info('访问此页面需要登录');
       router.replace({
         path: '/login',
+        query: { redirect: to.fullPath }
+      })
+    }
+  }
+  if (to.path === '/login') {
+    let access_token = localStorage.getItem('access_token');
+    if (access_token && JWTToken.isVaildRefreshToken()) {
+      message.success('您已登录，无需重复登录');
+      router.replace({
+        path: '/',
         query: { redirect: to.fullPath }
       })
     }
