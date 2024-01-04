@@ -16,11 +16,11 @@
                 <template #overlay>
                     <a-menu>
                         <a-menu-item>
-                            <a href="">{{ username }}</a>
+                            <a>{{ username }}</a>
                         </a-menu-item>
                         <a-menu-item>
-                            <a :click="JWTToken.logout">
-                                <LogoutOutlined />注销
+                            <a @click="handleLogout">
+                                <LogoutOutlined /> 注销
                             </a>
                         </a-menu-item>
                     </a-menu>
@@ -59,6 +59,11 @@ const isLogin = ref<boolean>(false);
 const avatar = ref<string>('');
 const username = ref<string>('');
 
+function handleLogout(){
+    JWTToken.logout();
+    isLogin.value = false;
+}
+
 export default {
     components: {
         LogoutOutlined,
@@ -72,10 +77,15 @@ export default {
         // 判断是否登录
         if (JWTToken.hasToken()) {
             isLogin.value = true;
+        } else {
+            isLogin.value = false;
         }
         // 获取用户信息
-        username.value = JWTToken.getUsername();
-        avatar.value = username.value.substring(0, 1).toUpperCase();
+        if (isLogin.value) {
+            username.value = JWTToken.getUsername();
+            //console.log(username.value);
+            avatar.value = username.value.substring(0, 1).toUpperCase();
+        }
     },
     beforeUnmount() {
         window.removeEventListener('scroll', this.handleScroll); // 在组件销毁前移除监听器
@@ -101,6 +111,7 @@ export default {
             JWTToken,
             avatar,
             username,
+            handleLogout,
         };
     },
 }
