@@ -17,15 +17,16 @@ class RegisterView(APIView):
         return Response(serializer.data)
 
 @api_view(['GET','DELETE'])
+@permission_classes([IsAuthenticated])
 def getVideo(request):
     new_dict = {}
     msg = ""
     time = datetime.datetime.now()
 
     if request.method == 'GET':
-        print("USER: ", request.user)
         q = request.GET.get('title') if request.GET.get('title') else ""
         id = request.GET.get('id') if request.GET.get('id') else ""
+        auth = request.GET.get('Authorization')
 
         if id and q:
             videos = Video.objects.filter(
@@ -81,7 +82,6 @@ class addVideo(APIView):
     serializer_class = AddVideoSerializer
 
     def post(self, request, *args, **kwargs):
-        # request.data['user'] = request.user.id
         serializer = self.serializer_class(data=request.data)
         new_dict = {}
         time = datetime.datetime.now()
