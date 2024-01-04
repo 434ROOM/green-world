@@ -150,12 +150,11 @@ router.beforeEach((to, from) => {
       query: { redirect: to.fullPath }
     });
   }
-  
+  // 如果已登录，访问登录页面则跳转到首页
   if (to.path === '/login' && JWTToken.hasToken() && JWTToken.isVaildRefreshToken()) {
     message.success('您已登录，无需重复登录');
     router.replace({
       path: '/',
-      query: { redirect: to.fullPath }
     });
   }
   return true;
