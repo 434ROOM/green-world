@@ -33,18 +33,18 @@ function setRefreshToken(token) {
 const decodeJwt = (token) => {
     const parts = token.split('.');
     if (parts.length !== 3) {
-      throw new Error('Invalid JWT token format');
+        throw new Error('Invalid JWT token format');
     }
-  
+
     const decodedHeader = JSON.parse(atob(parts[0]));
     const decodedPayload = JSON.parse(atob(parts[1]));
-  
+
     return {
-      header: decodedHeader,
-      payload: decodedPayload,
-      signature: parts[2] // 签名部分，通常在前端不做处理
+        header: decodedHeader,
+        payload: decodedPayload,
+        signature: parts[2] // 签名部分，通常在前端不做处理
     };
-  };
+};
 
 function isVaildRefreshToken() {
     const refresh_token = localStorage.getItem("refresh_token");
@@ -74,7 +74,7 @@ function refreshToken() {
         const headers = {
             "Content-Type": "multipart/form-data",
         };
-        axios.post(serverConfig.apiUrl + '/login/refresh', { headers: headers })
+        axios.post(serverConfig.apiUrl + '/login/refresh', formData, { headers: headers })
             .then(response => {
                 const new_access_token = response.data.access;
                 setAccessToken(new_access_token);
