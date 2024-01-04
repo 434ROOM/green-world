@@ -133,7 +133,7 @@ router.beforeEach((to, from) => {
   document.title = wholeTitle;
   // 判断该路由是否需要登录权限
   if (to.meta.requireAuth) {
-    if (JWTToken.hasToken() && JWTToken.isVaildAccessToken()) {
+    if (JWTToken.hasToken() && JWTToken.isVaildRefreshToken()) {
       return true;
     } else if (JWTToken.hasToken() && !JWTToken.isVaildRefreshToken()) {
       message.error('登录过期，请重新登录');
