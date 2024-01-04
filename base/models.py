@@ -3,7 +3,6 @@ from django.db import models
 from .utility import getVideoUtility, getAudioUtility, getImageUtility
 import matplotlib
 matplotlib.use('Agg')
-from django.contrib.auth.models import User
 from django.core.files.storage import FileSystemStorage
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 
@@ -66,7 +65,7 @@ class VideoQuerySet(models.QuerySet):
 
 class Video(models.Model):
     id = models.AutoField(primary_key=True)
-    # user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(UserData, on_delete=models.CASCADE)
     title = models.CharField(max_length=200, null=True)
     video_file = models.FileField(upload_to="videos/", storage=UUIDStorage)
     duration = models.DurationField(null=True, blank=False)
@@ -112,6 +111,7 @@ class ImageQuerySet(models.QuerySet):
 
 class Image(models.Model):
     title = models.CharField(max_length=20)
+    user = models.ForeignKey(UserData, on_delete=models.CASCADE)
     photo = models.ImageField(upload_to="images/", storage=UUIDStorage)
     width = models.IntegerField(null=True, blank=False)
     height = models.IntegerField(null=True, blank=False)
@@ -166,6 +166,7 @@ class AudioQuerySet(models.QuerySet):
 
 class Audio(models.Model):
     title = models.CharField(max_length=20)
+    user = models.ForeignKey(UserData, on_delete=models.CASCADE)
     audio = models.FileField(upload_to='audios/', storage=UUIDStorage)
     spectrogram = models.ImageField(upload_to='audios/spectrogram/', null=True, blank=True, storage=UUIDStorage)
     spectrum_diagram = models.ImageField(upload_to='audios/spectrum_diagram/', null=True, blank=True, storage=UUIDStorage)
