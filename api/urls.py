@@ -13,6 +13,6 @@ urlpatterns = [
     path('audio', views.getAudio),
     path('add-audio', views.addAudio.as_view()),
     path('register', views.RegisterView.as_view()),
-    path('login', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('login', views.CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('login/refresh', TokenRefreshView.as_view(), name='token_refresh'),
 ]

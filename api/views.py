@@ -1,13 +1,41 @@
+import datetime
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.parsers import FormParser, MultiPartParser
 from base.models import Video, Image, Audio
-from .serializers import GetVideoSerializer, GetImageSerializer, GetAudioSerializer, AddVideoSerializer, AddImageSerializer, AddAudioSerializer, UserSerializer
+from .serializers import GetVideoSerializer, GetImageSerializer, GetAudioSerializer, AddVideoSerializer, AddImageSerializer, AddAudioSerializer, UserSerializer, MyTokenObtainPairSerializer
 from rest_framework.views import APIView
 from django.db.models import Q
-import datetime, os
+import datetime, os, jwt
+from rest_framework_simplejwt.tokens import AccessToken
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework import status
+
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = MyTokenObtainPairSerializer
+
+    def post(self, request, *args, **kwargs):
+        now = datetime.datetime.now()
+        response = super().post(request, *args, **kwargs)
+
+        if response.status_code == status.HTTP_200_OK:
+            refresh = response.data['refresh']
+            access = response.data['access']
+
+            custom_data = {
+                'code' : status.HTTP_200_OK,
+                'msg' : "User logged in successfully",
+                'time' : now,
+                'refresh': refresh,
+                'access': access,
+            }
+            response.data = custom_data
+
+        return response
+
 
 class RegisterView(APIView):
     def post(self, request):
@@ -26,7 +54,10 @@ def getVideo(request):
     if request.method == 'GET':
         q = request.GET.get('title') if request.GET.get('title') else ""
         id = request.GET.get('id') if request.GET.get('id') else ""
-        auth = request.GET.get('Authorization')
+        auth = (request.headers.get('Authorization'))
+        token = AccessToken(auth.split()[1])
+        decoded_token = token.payload
+        print(decoded_token)
 
         if id and q:
             videos = Video.objects.filter(

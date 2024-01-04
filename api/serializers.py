@@ -1,5 +1,29 @@
 from rest_framework import serializers
 from base.models import Video, Image, Audio, UserData
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework import serializers
+from rest_framework import status
+import datetime
+
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    now = datetime.datetime.now()
+
+    default_error_messages = {
+        'no_active_account': {
+            'code': status.HTTP_401_UNAUTHORIZED,
+            'msg': ('No active account found with the given credentials'),
+            'time' : now,
+            'data' : {}
+        },
+    }
+
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        token['username'] = user.name
+        token['email'] = user.email
+
+        return token
 
 class GetVideoSerializer(serializers.ModelSerializer):    
     class Meta:
