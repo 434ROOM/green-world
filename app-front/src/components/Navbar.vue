@@ -19,7 +19,9 @@
                             <a href="">{{ username }}</a>
                         </a-menu-item>
                         <a-menu-item>
-                            <a :click="JWTToken.logout">注销</a>
+                            <a :click="JWTToken.logout">
+                                <LogoutOutlined />注销
+                            </a>
                         </a-menu-item>
                     </a-menu>
                 </template>
@@ -33,13 +35,12 @@
             <a-menu-item key="Image"><router-link to="/image">图像交互</router-link></a-menu-item>
             <a-menu-item key="About"><router-link to="/about">关于我们</router-link></a-menu-item>
         </a-menu>
-
     </a-layout-header>
 </template>
 
 <script lang="ts">
 import { ref } from 'vue';
-import { UserOutlined } from '@ant-design/icons-vue';
+import { LogoutOutlined } from '@ant-design/icons-vue';
 
 import JWTToken from '@/JWTToken';
 
@@ -60,7 +61,7 @@ const username = ref<string>('');
 
 export default {
     components: {
-        UserOutlined,
+        LogoutOutlined,
     },
     mounted() {
         // 获取当前页面的路由名称
