@@ -9,14 +9,15 @@
             <a-button v-if="!isLogin" type="primary" shape="round" ghost>
                 <RouterLink to="/login">登录/注册</RouterLink>
             </a-button>
+
             <a-dropdown v-if="isLogin">
                 <a class="ant-dropdown-link" @click.prevent>
-                    <a-avatar>{{ avatar }}</a-avatar>
+                    <a-avatar :src="avatar">{{ avatarText }}</a-avatar>
                 </a>
                 <template #overlay>
                     <a-menu>
                         <a-menu-item>
-                            <a>{{ username }}</a>
+                            <RouterLink to="/user">{{ username }}</RouterLink>
                         </a-menu-item>
                         <a-menu-item>
                             <a @click="handleLogout">
@@ -56,10 +57,23 @@ const selectedKeys = ref<string[]>(['home']);
 const navbarClass = ref<string>('nav-header');
 
 const isLogin = ref<boolean>(false);
+const avatarText = ref<string>('');
 const avatar = ref<string>('');
 const username = ref<string>('');
 
-function handleLogout(){
+function getLoginInfo() {
+    if (JWTToken.hasToken()) {
+        isLogin.value = true;
+        username.value = JWTToken.getUsername();
+        avatarText.value = username.value[0].toUpperCase();
+        avatar.value = JWTToken.getAvatar();
+    } else {
+        isLogin.value = false;
+        return;
+    }
+}
+
+function handleLogout() {
     JWTToken.logout();
     isLogin.value = false;
 }
@@ -74,18 +88,8 @@ export default {
         selectedKeys.value = [pageName];
         // 监听滚动事件
         window.addEventListener('scroll', this.handleScroll);
-        // 判断是否登录
-        if (JWTToken.hasToken()) {
-            isLogin.value = true;
-        } else {
-            isLogin.value = false;
-        }
-        // 获取用户信息
-        if (isLogin.value) {
-            username.value = JWTToken.getUsername();
-            //console.log(username.value);
-            avatar.value = username.value.substring(0, 1).toUpperCase();
-        }
+        // 获取登录信息
+        getLoginInfo();
     },
     beforeUnmount() {
         window.removeEventListener('scroll', this.handleScroll); // 在组件销毁前移除监听器
@@ -112,6 +116,7 @@ export default {
             avatar,
             username,
             handleLogout,
+            avatarText,
         };
     },
 }
