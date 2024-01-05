@@ -12,7 +12,9 @@
     "@ant-design/icons-vue": "^7.0.1",
     "ant-design-vue": "^4.0.8",
     "axios": "^1.6.2",
+    "mitt": "^3.0.1",
     "vue": "^3.3.11",
+    "vue-cropper": "^1.1.1",
     "vue-router": "^4.2.5"
   },
   "devDependencies": {

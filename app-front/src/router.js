@@ -5,14 +5,6 @@ import JWTToken from './JWTToken.js';
 
 const routes = [
   {
-    path: '/test',
-    name: 'Test',
-    meta: {
-      title: '测试'
-    },
-    component: () => import('./pages/Test.vue') // 路由懒加载
-  },
-  {
     path: '/',
     name: 'Home',
     meta: {

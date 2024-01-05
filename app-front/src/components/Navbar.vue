@@ -44,6 +44,7 @@ import { ref } from 'vue';
 import { LogoutOutlined } from '@ant-design/icons-vue';
 
 import JWTToken from '@/JWTToken';
+import EventBus from '@/EventBus';
 
 import defaultSrc from '../assets/images/logo-text.png';
 import hoverSrc from '../assets/images/logo-text-green.png';
@@ -90,9 +91,11 @@ export default {
         window.addEventListener('scroll', this.handleScroll);
         // 获取登录信息
         getLoginInfo();
+        EventBus.on('userProfileChanged', getLoginInfo);
     },
     beforeUnmount() {
         window.removeEventListener('scroll', this.handleScroll); // 在组件销毁前移除监听器
+        EventBus.off('userProfileChanged', getLoginInfo);// 移除事件监听
     },
     methods: {
         handleScroll() {

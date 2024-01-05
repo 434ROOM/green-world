@@ -29,37 +29,59 @@
     </div>
 
     <div v-if="switchCode == 'avatar'" class="avatar-area">
-        <a-avatar :size="64" :src="userProfile.avatar" style="margin-bottom: 2rem;">
-            {{ userProfile.username ? userProfile.username[0].toUpperCase() : 'null' }}
-        </a-avatar>
-        <a-button type="primary" @click="openAvatarModal">修改头像</a-button>
-
-        <a-modal v-model:visible="avatarModalVisable" title="修改头像" :footer="null">
-            <a-upload v-model:file-list="fileList" name="avatar" list-type="picture-card" class="avatar-uploader"
-                :show-upload-list="false" :before-upload="beforeUpload" :custom-request="handleUpload" @change="handleChange">
-                <img v-if="imageUrl" :src="imageUrl" alt="avatar" />
-                <div v-else>
-                    <loading-outlined v-if="loading"></loading-outlined>
-                    <plus-outlined v-else></plus-outlined>
-                    <div class="ant-upload-text">Upload</div>
-                </div>
-            </a-upload>
-        </a-modal>
+        <AvatarUpload />
     </div>
 
     <div v-if="switchCode == 'password'">
+        <a-form :model="changePasswordFormState" name="normal_login" class="change-password-form" @submit="changePassword">
 
+            <a-form-item name="old_password" :rules="[{ required: true, message: '请输入旧密码！' }]">
+                <a-input-password v-model:value="changePasswordFormState.password" placeholder="旧密码">
+                    <template #prefix>
+                        <LockOutlined class="site-form-item-icon" />
+                    </template>
+                </a-input-password>
+            </a-form-item>
+
+            <a-form-item name="password" :rules="[{ required: true, message: '请输入新密码！' }]">
+                <a-input-password v-model:value="changePasswordFormState.password" placeholder="新密码">
+                    <template #prefix>
+                        <LockOutlined class="site-form-item-icon" />
+                    </template>
+                </a-input-password>
+            </a-form-item>
+
+            <a-form-item name="confirm" :rules="[{ required: true, message: '请确认新密码！' }]">
+                <a-input-password v-model:value="changePasswordFormState.confirm" placeholder="确认新密码">
+                    <template #prefix>
+                        <LockOutlined class="site-form-item-icon" />
+                    </template>
+                </a-input-password>
+            </a-form-item>
+
+            <a-form-item no-style>
+                <div class="change-password-btn">
+                    <a-button :disabled="registerDisabled" type="primary" html-type="submit">
+                        修改密码
+                    </a-button>
+                </div>
+            </a-form-item>
+        </a-form>
     </div>
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import { reactive } from 'vue';
 import { MailOutlined } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue';
+import { LockOutlined } from '@ant-design/icons-vue';
 import axios from 'axios';
 
+import AvatarUpload from '@/components/AvatarUpload.vue';
 import JWTToken from '@/JWTToken.js';
 import serverConfig from '@/serverConfig';
+import EventBus from '@/EventBus';
 
 const switchData = ref([
     {
@@ -85,6 +107,22 @@ const userProfile = ref({
     email: JWTToken.getEmail(),
     avatar: JWTToken.getAvatar(),
 });
+
+onMounted(() => {
+    EventBus.on('userProfileChanged', () => {
+        userProfile.value = {
+            user_id: JWTToken.getUserId(),
+            username: JWTToken.getUsername(),
+            email: JWTToken.getEmail(),
+            avatar: JWTToken.getAvatar(),
+        };
+    });
+});
+
+onBeforeUnmount(() => {
+    EventBus.off('userProfileChanged');
+});
+
 
 function checkNewUsername() {
     let isVaild = true;
@@ -138,17 +176,17 @@ function changeUsername() {
     const fromData = new FormData();
     fromData.append('username', newUsername.value);
 
-    axios.post(serverConfig.apiUrl + '/user/change-sername', fromData, {
+    axios.post(serverConfig.apiUrl + '/user/change-profile', fromData, {
         headers: {
-            'Authorization': JWTToken.getToken(),
+            'Authorization': 'Bearer ' + JWTToken.getAccessToken(),
             "Content-Type": "multipart/form-data",
         },
     }
     ).then((res) => {
         if (res.status == 200) {
+            newUsername.value = '';
             message.success('用户名修改成功');
             JWTToken.refreshToken();
-            window.location.reload();
         } else {
             message.error('用户名修改失败');
         }
@@ -158,90 +196,62 @@ function changeUsername() {
     });
 }
 
-const avatarModalVisable = ref(false);
-function openAvatarModal() {
-    avatarModalVisable.value = true;
+// 修改密码
+interface ChangePasswordFormState {
+    old_password: string;
+    password: string;
+    confirm: string;
 }
 
-import { PlusOutlined, LoadingOutlined } from '@ant-design/icons-vue';
-import type { UploadChangeParam, UploadProps } from 'ant-design-vue';
+const changePasswordFormState = reactive<ChangePasswordFormState>({
+    old_password: '',
+    password: '',
+    confirm: '',
+});
 
-function getBase64(img: Blob, callback: (base64Url: string) => void) {
-    const reader = new FileReader();
-    reader.addEventListener('load', () => callback(reader.result as string));
-    reader.readAsDataURL(img);
-}
-
-const fileList = ref([]);
-const loading = ref<boolean>(false);
-const imageUrl = ref<string>('');
-
-const handleChange = (info: UploadChangeParam) => {
-    if (info.file.status === 'uploading') {
-        loading.value = true;
-        return;
-    }
-    if (info.file.status === 'done') {
-        // Get this url from response in real world.
-        getBase64(info.file.originFileObj, (base64Url: string) => {
-            imageUrl.value = base64Url;
-            loading.value = false;
-        });
-    }
-    if (info.file.status === 'error') {
-        loading.value = false;
-        message.error('upload error');
-    }
-};
-
-const beforeUpload = (file: UploadProps['fileList'][number]) => {
-    const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
-    if (!isJpgOrPng) {
-        message.error('头像只能是 JPG/PNG 格式的图片');
-    }
-    const isLt2M = file.size / 1024 / 1024 < 2;
-    if (!isLt2M) {
-        message.error('头像大小不能超过 2MB');
-    }
-    return isJpgOrPng && isLt2M;
-};
-
-function handleUpload(data: { file: any; onSuccess: any; onError: any; onProgress: any; }) {
-    let { file, onSuccess, onError, onProgress } = data;
+const registerDisabled = computed(() => {
+    let isFinish = changePasswordFormState.old_password && changePasswordFormState.password && changePasswordFormState.confirm;
+    let isSame = changePasswordFormState.password === changePasswordFormState.confirm;
+    return !(isFinish && isSame);
+});
+function changePassword() {
     const formData = new FormData();
-    formData.append('avatar', file);
+    formData.append('old_password', changePasswordFormState.old_password);
+    formData.append('password', changePasswordFormState.password);
 
-    axios({
-        method: 'post',
-        url: serverConfig.apiUrl + '/user/change-avatar',
-        data: formData,
+    // 构造axios请求，注意headers应该是配置对象的一部分
+    axios.post(serverConfig.apiUrl + '/user/change-password', formData, {
         headers: {
-            'Content-Type': 'multipart/form-data',
-            Authorization: 'Bearer ' + JWTToken.getAccessToken(),
-        },
-        onUploadProgress: (progressEvent) => {
-            const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-            onProgress({ percent: percentCompleted });
-        },
+            'Content-Type': 'multipart/form-data'
+        }
     })
         .then((res) => {
-            if (res.data.code === 201) {
-                let fileInfo = {
-                    uid: res.data.data.id,
-                    name: res.data.data.title,
-                    status: 'done',
-                    url: Server.url + res.data.data.photo,
-                };
-                onSuccess(fileInfo, file);
+            if (res.status === 200) { // 在axios中，响应状态码通常在res.data中，这里可能需要调整
+                message.success('密码修改成功，请使用重新登录！');
+                setTimeout(() => {
+                    JWTToken.logout();
+                }, 1000);
             } else {
-                throw new Error(`${res.data.code} ${res.data.msg}`);
+                message.error(res.data.message); // 响应数据可能在res.data中
             }
         })
-        .catch((error) => {
-            console.error(error.message);
-            onError(error.message, file);
+        .catch((err) => {
+            if (err.response && err.response.data) {
+                // 处理响应错误，如果服务器返回了错误信息
+                if (err.response.status === 401) {
+                    message.error('密码修改失败，请检查原密码是否正确！');
+                } else {
+                    message.error(err.response.data.msg || '密码修改失败，请稍后重试！');
+                }
+            }
+            else {
+                // 处理其他类型的错误，比如网络错误等
+                console.error(err);
+                message.error('密码修改失败，请检查网络连接并重试！');
+            }
         });
 }
+
 
 </script>
 
@@ -266,18 +276,14 @@ function handleUpload(data: { file: any; onSuccess: any; onError: any; onProgres
     justify-content: center;
 }
 
-.avatar-uploader>.ant-upload {
-    width: 128px;
-    height: 128px;
+.change-password-form {
+    width: 100%;
+    max-width: 360px;
+    margin: 0 auto;
 }
 
-.ant-upload-select-picture-card i {
-    font-size: 32px;
-    color: #999;
-}
-
-.ant-upload-select-picture-card .ant-upload-text {
-    margin-top: 8px;
-    color: #666;
+.change-password-form .change-password-btn {
+    display: flex;
+    justify-content: center;
 }
 </style>
