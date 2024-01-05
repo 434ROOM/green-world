@@ -375,12 +375,9 @@ class addAudio(APIView):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def userProfile(request):
-    auth = request.headers.get('Authorization')
-    decoded_token = AccessToken(auth.split()[1]).payload
-
-    user_id = decoded_token['user_id']
-    username = decoded_token['username']
-    email = decoded_token['email']
+    user_id = request.user.id
+    username = request.user.name
+    email = request.user.email
     avatar = request.user.avatar.url if request.user.avatar.url else ""
     time = datetime.datetime.now()
 
@@ -411,7 +408,7 @@ def userProfile(request):
         })
     
 @permission_classes([IsAuthenticated])
-class addAvatar(APIView):
+class changeAvatar(APIView):
     parser_classes = (MultiPartParser, FormParser)
     serializer_class = AvatarSerializer
 
@@ -445,3 +442,70 @@ class addAvatar(APIView):
             msg = "Upload failure"
             new_dict = {"code":code, "msg":msg, "time":time, "data":{}}
             return Response(new_dict, status=status.HTTP_400_BAD_REQUEST)
+        
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def changeProfile(request):
+    try:
+        user = request.user
+        username = request.data.get('username')
+        print(user.password)
+
+        user.name = username
+        user.save()
+
+        return Response(
+            {
+                "code": status.HTTP_200_OK, 
+                "msg": "User name changed successfully",
+                "time" : datetime.datetime.now(),
+                "data" :{
+                    "user_id" : user.id,
+                    "username" : user.name,
+                    "email" : user.email,
+                    "avatar" : user.avatar.url
+                }
+            },
+            status=status.HTTP_200_OK
+        )
+    except:
+        return Response(
+            {
+                "code": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                "msg": "Error changing user name"
+            },
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+    
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def changePassword(request):
+    try:
+        user = request.user
+        password = request.data.get('password')
+
+        user.set_password(password)
+        user.save()
+
+        return Response(
+            {
+                "code": status.HTTP_200_OK, 
+                "msg": "User password changed successfully",
+                "time" : datetime.datetime.now(),
+                "data" :{
+                    "user_id" : user.id,
+                    "username" : user.name,
+                    "email" : user.email,
+                    "avatar" : user.avatar.url
+                }
+            },
+            status=status.HTTP_200_OK
+        )
+    except:
+        return Response(
+            {
+                "code": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                "msg": "Error changing user name"
+            },
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
