@@ -1,9 +1,8 @@
 import axios from "axios";
 import serverConfig from "./serverConfig";
 import { message } from "ant-design-vue";
-import router from "./router";
-
-var userProfile = {};
+import router from "./router.js";
+import EventBus from "./EventBus.js";
 
 function hasToken() {
     return localStorage.getItem("access_token") != null && localStorage.getItem("refresh_token") != null;
@@ -25,6 +24,7 @@ function getRefreshToken() {
 
 function setAccessToken(token) {
     localStorage.setItem("access_token", token);
+    getProfile();
 }
 
 function setRefreshToken(token) {
@@ -95,30 +95,35 @@ function refreshToken() {
 }
 
 function getUsername() {
-    const access_token = localStorage.getItem("access_token");
-    const decoded_access_token = access_token ? decodeJwt(access_token) : null;
-    if (decoded_access_token == null) {
-        return null;
+    const userProfile = JSON.parse(localStorage.getItem("user_profile"));
+    if (userProfile == null || userProfile.username == null) {
+        getProfile();
     }
-    return decoded_access_token.payload.username;
+    return userProfile.username;
 }
 
 function getEmail() {
-    const access_token = localStorage.getItem("access_token");
-    const decoded_access_token = access_token ? decodeJwt(access_token) : null;
-    if (decoded_access_token == null) {
-        return null;
+    const userProfile = JSON.parse(localStorage.getItem("user_profile"));
+    if (userProfile == null || userProfile.email == null) {
+        getProfile();
     }
-    return decoded_access_token.payload.email;
+    return userProfile.email;
 }
 
 function getUserId() {
-    const access_token = localStorage.getItem("access_token");
-    const decoded_access_token = access_token ? decodeJwt(access_token) : null;
-    if (decoded_access_token == null) {
-        return null;
+    const userProfile = JSON.parse(localStorage.getItem("user_profile"));
+    if (userProfile == null || userProfile.user_id == null) {
+        getProfile();
     }
-    return decoded_access_token.payload.user_id;
+    return userProfile.user_id;
+}
+
+function getAvatar() {
+    const userProfile = JSON.parse(localStorage.getItem("user_profile"));
+    if (userProfile == null || userProfile.avatar == null) {
+        getProfile();
+    }
+    return userProfile.avatar;
 }
 
 function getProfile() {
@@ -131,11 +136,14 @@ function getProfile() {
         },
     }).then((res) => {
         if (res.status == 200) {
-            userProfile = res.data;
-            if (userProfile.avatar != null) {
-                const newUrl = serverConfig.apiUrl + userProfile.avatar;
-                userProfile.avatar = newUrl;
-            }
+            let userProfile = {
+                user_id: res.data.data.user_id,
+                username: res.data.data.username,
+                email: res.data.data.email,
+                avatar: res.data.data.avatar ? serverConfig.url + res.data.data.avatar : null,
+            };
+            localStorage.setItem("user_profile", JSON.stringify(userProfile));
+            EventBus.emit('userProfileChanged');
             return userProfile;
         } else {
             message.error('获取用户信息失败，请稍后重试!');
@@ -144,20 +152,15 @@ function getProfile() {
         console.log(err);
         message.error('获取用户信息失败，请稍后重试!');
         userProfile = {};
+        localStorage.setItem("user_profile", JSON.stringify(userProfile));
         return null;
     });
-}
-
-function getAvatar() {
-    if (userProfile == null || userProfile.avatar == null) {
-        getProfile();
-    }
-    return userProfile.avatar;
 }
 
 function logout() {
     localStorage.removeItem("access_token");
     localStorage.removeItem("refresh_token");
+    localStorage.removeItem("user_profile");
     window.location.reload();
 }
 
