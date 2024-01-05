@@ -95,6 +95,7 @@ export default {
     },
     beforeUnmount() {
         window.removeEventListener('scroll', this.handleScroll); // 在组件销毁前移除监听器
+        EventBus.off('userProfileChanged', getLoginInfo);// 移除事件监听
     },
     methods: {
         handleScroll() {
