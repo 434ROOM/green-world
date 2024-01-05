@@ -380,13 +380,15 @@ def userProfile(request):
     user_id = decoded_token['user_id']
     username = decoded_token['username']
     email = decoded_token['email']
+    avatar = request.user.avatar.url if request.user.avatar.url else ""
     time = datetime.datetime.now()
 
     if user_id and username and email:
         data = {
             "user_id" : user_id,
             "username" : username,
-            "email" : email
+            "email" : email,
+            "avatar" : avatar
         }
         code = status.HTTP_200_OK
         msg = "Get user profile successfully"
