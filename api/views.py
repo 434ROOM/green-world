@@ -432,7 +432,7 @@ class changeAvatar(APIView):
                 "avatar" : user.avatar.url
             })
             
-            code = status.HTTP_200_OK
+            code = status.HTTP_201_CREATED
             msg = "Avatar uploaded successfully"
 
             new_dict.update({"code":code, "msg":msg, "time":time, "data":new_data})
