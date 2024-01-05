@@ -5,11 +5,11 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import FormParser, MultiPartParser
 from base.models import Video, Image, Audio
-from .serializers import GetVideoSerializer, GetImageSerializer, GetAudioSerializer, AddVideoSerializer, AddImageSerializer, AddAudioSerializer, UserSerializer, MyTokenObtainPairSerializer, AvatarSerializer
+from .serializers import GetVideoSerializer, GetImageSerializer, GetAudioSerializer, AddVideoSerializer, AddImageSerializer, AddAudioSerializer, UserSerializer, MyTokenObtainPairSerializer, MyTokenRefreshSerializer, AvatarSerializer
 from rest_framework.views import APIView
 from django.db.models import Q
 from rest_framework_simplejwt.tokens import AccessToken
-from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework import status
 
 
@@ -17,7 +17,6 @@ class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
 
     def post(self, request, *args, **kwargs):
-        now = datetime.datetime.now()
         response = super().post(request, *args, **kwargs)
 
         if response.status_code == status.HTTP_200_OK:
@@ -27,14 +26,16 @@ class CustomTokenObtainPairView(TokenObtainPairView):
             custom_data = {
                 'code' : status.HTTP_200_OK,
                 'msg' : "User logged in successfully",
-                'time' : now,
+                'time' : datetime.datetime.now(),
                 'refresh': refresh,
                 'access': access,
             }
             response.data = custom_data
 
         return response
-
+    
+class CustomTokenRefreshView(TokenRefreshView):
+    serializer_class = MyTokenRefreshSerializer
 
 class RegisterView(APIView):
     def post(self, request):
@@ -374,58 +375,40 @@ class addAudio(APIView):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def userProfile(request):
-    auth = request.headers.get('Authorization')
-    decoded_token = AccessToken(auth.split()[1]).payload
-    user_id = decoded_token['user_id']
-    username = decoded_token['username']
-
-    print(decoded_token)
-
-    videos = Video.objects.filter(Q(user__id=user_id))
-    images = Image.objects.filter(Q(user__id=user_id))
-    audios = Audio.objects.filter(Q(user__id=user_id))
-
-    data = {}
-    msg = ""
+    user_id = request.user.id
+    username = request.user.name
+    email = request.user.email
+    avatar = request.user.avatar.url if request.user.avatar.url else ""
     time = datetime.datetime.now()
 
-    if videos or images or audios:
-        video_serializer = GetVideoSerializer(videos, many=True)
-        image_serializer = GetImageSerializer(images, many=True)
-        audio_serializer = GetAudioSerializer(audios, many=True)
-
+    if user_id and username and email:
+        data = {
+            "user_id" : user_id,
+            "username" : username,
+            "email" : email,
+            "avatar" : avatar
+        }
         code = status.HTTP_200_OK
         msg = "Get user profile successfully"
 
-        data.update({
+        return Response({
             "code" : code,
             "msg" : msg,
             "time" : time,
-            "username" : username,
-            "data" : {
-                "videos" : video_serializer.data,
-                "images" : image_serializer.data,
-                "audios" : audio_serializer.data
-            }
-        })
-
-        return Response(data)
+            "data" : data
+        }, code) 
     else:
-        code = status.HTTP_204_NO_CONTENT
-        msg = "Current user haven't uploaded anything!"
-
-        data.update({
+        code = status.HTTP_400_BAD_REQUEST
+        msg = "Unknown Error"
+        return Response({
             "code" : code,
             "msg" : msg,
             "time" : time,
-            "username" : username,
             "data" : {}
         })
-
-        return Response(data)
     
 @permission_classes([IsAuthenticated])
-class addAvatar(APIView):
+class changeAvatar(APIView):
     parser_classes = (MultiPartParser, FormParser)
     serializer_class = AvatarSerializer
 
@@ -459,3 +442,70 @@ class addAvatar(APIView):
             msg = "Upload failure"
             new_dict = {"code":code, "msg":msg, "time":time, "data":{}}
             return Response(new_dict, status=status.HTTP_400_BAD_REQUEST)
+        
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def changeProfile(request):
+    try:
+        user = request.user
+        username = request.data.get('username')
+        print(user.password)
+
+        user.name = username
+        user.save()
+
+        return Response(
+            {
+                "code": status.HTTP_200_OK, 
+                "msg": "User name changed successfully",
+                "time" : datetime.datetime.now(),
+                "data" :{
+                    "user_id" : user.id,
+                    "username" : user.name,
+                    "email" : user.email,
+                    "avatar" : user.avatar.url
+                }
+            },
+            status=status.HTTP_200_OK
+        )
+    except:
+        return Response(
+            {
+                "code": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                "msg": "Error changing user name"
+            },
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+    
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def changePassword(request):
+    try:
+        user = request.user
+        password = request.data.get('password')
+
+        user.set_password(password)
+        user.save()
+
+        return Response(
+            {
+                "code": status.HTTP_200_OK, 
+                "msg": "User password changed successfully",
+                "time" : datetime.datetime.now(),
+                "data" :{
+                    "user_id" : user.id,
+                    "username" : user.name,
+                    "email" : user.email,
+                    "avatar" : user.avatar.url
+                }
+            },
+            status=status.HTTP_200_OK
+        )
+    except:
+        return Response(
+            {
+                "code": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                "msg": "Error changing user name"
+            },
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )

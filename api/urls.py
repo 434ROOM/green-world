@@ -1,9 +1,5 @@
 from django.urls import path
 from . import views
-from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
-    TokenRefreshView,
-)
 
 urlpatterns = [
     path('video', views.getVideo),
@@ -14,7 +10,9 @@ urlpatterns = [
     path('add-audio', views.addAudio.as_view()),
     path('register', views.RegisterView.as_view()),
     path('login', views.CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('login/refresh', TokenRefreshView.as_view(), name='token_refresh'),
-    path('profile', views.userProfile, name='profile'),
-    path('add-avatar', views.addAvatar.as_view())
+    path('login/refresh', views.CustomTokenRefreshView.as_view(), name='token_refresh'),
+    path('user/profile', views.userProfile),
+    path('user/change-avatar', views.changeAvatar.as_view()),
+    path('user/change-profile', views.changeProfile),
+    path('user/change-password', views.changePassword)
 ]
