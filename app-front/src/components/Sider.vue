@@ -44,6 +44,12 @@
                     <router-link to="/image/lib">图像库</router-link>
                 </a-menu-item>
             </a-sub-menu>
+            <a-menu-item key="User">
+                <router-link to="/user">
+                    <UserOutlined />
+                    用户中心
+                </router-link>
+            </a-menu-item>
         </a-menu>
     </a-layout-sider>
 </template>
@@ -54,6 +60,7 @@ import {
     VideoCameraOutlined,
     SoundOutlined,
     FileImageOutlined,
+    UserOutlined,
 } from '@ant-design/icons-vue';
 
 const selectedKeys = ref<string[]>(['0']);
@@ -92,6 +99,14 @@ const menu = [
                 name: 'ImageLib',
             }
         ]
+    },
+    {
+        name: 'User',
+        children: [
+            {
+                name: 'User',
+            }
+        ]
     }
 ]
 
@@ -103,6 +118,7 @@ export default {
         VideoCameraOutlined,
         SoundOutlined,
         FileImageOutlined,
+        UserOutlined,
     },
     mounted() {
         let pageName = this.$route.name;

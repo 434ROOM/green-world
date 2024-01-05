@@ -102,6 +102,15 @@ const routes = [
     component: () => import('./pages/Login.vue')
   },
   {
+    path: '/user',
+    name: 'User',
+    meta: {
+      title: '用户中心',
+      requireAuth: true,
+    },
+    component: () => import('./pages/User.vue')
+  },
+  {
     path: '/:catchAll(.*)',
     name: '404',
     meta: {
