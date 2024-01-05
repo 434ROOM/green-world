@@ -6,8 +6,13 @@ matplotlib.use('Agg')
 from django.core.files.storage import FileSystemStorage
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 
-class UserManager(BaseUserManager):
+class UUIDStorage(FileSystemStorage):
+    def get_available_name(self, name, max_length=None):
+        my_uuid = shortuuid.ShortUUID().random(length=7)
+        new_name = os.path.splitext(name)[0] + f"_{my_uuid}" + os.path.splitext(name)[1]
+        return super().get_available_name(new_name, max_length)
 
+class UserManager(BaseUserManager):
     use_in_migration = True
 
     def create_user(self, email, password=None, **extra_fields):
@@ -32,10 +37,10 @@ class UserManager(BaseUserManager):
 
 
 class UserData(AbstractUser):
-
     username = None
     name = models.CharField(max_length=100, unique=True)
     email = models.EmailField(max_length=100, unique=True)
+    avatar = models.ImageField(upload_to="avatars/", storage=UUIDStorage, null=True, blank=True)
     date_joined = models.DateTimeField(auto_now_add=True)
     is_admin = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
@@ -47,15 +52,13 @@ class UserData(AbstractUser):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['name']
 
+    def delete(self, *args, **kwargs):
+        if self.avatar:
+            if os.path.isfile(self.avatar.path):
+                os.remove(self.avatar.path)
+
     def __str__(self):
         return self.name
-
-
-class UUIDStorage(FileSystemStorage):
-    def get_available_name(self, name, max_length=None):
-        my_uuid = shortuuid.ShortUUID().random(length=7)
-        new_name = os.path.splitext(name)[0] + f"_{my_uuid}" + os.path.splitext(name)[1]
-        return super().get_available_name(new_name, max_length)
 
 class VideoQuerySet(models.QuerySet):
     def delete(self):
@@ -65,7 +68,7 @@ class VideoQuerySet(models.QuerySet):
 
 class Video(models.Model):
     id = models.AutoField(primary_key=True)
-    user = models.ForeignKey(UserData, on_delete=models.CASCADE)
+    user = models.ForeignKey(UserData, on_delete=models.CASCADE, null=True)
     title = models.CharField(max_length=200, null=True)
     video_file = models.FileField(upload_to="videos/", storage=UUIDStorage)
     duration = models.DurationField(null=True, blank=False)
@@ -77,8 +80,10 @@ class Video(models.Model):
 
     objects = VideoQuerySet.as_manager()
 
-    def save(self, *args, **kwargs):
+    def save(self, user, *args, **kwargs):
         super().save(*args, **kwargs)
+        self.user = user
+
         if self.video_file:
             self.title = os.path.splitext(os.path.basename(self.video_file.name))[0]
             self.frames = getVideoUtility.getFrames(self.video_file)
@@ -111,7 +116,7 @@ class ImageQuerySet(models.QuerySet):
 
 class Image(models.Model):
     title = models.CharField(max_length=20)
-    user = models.ForeignKey(UserData, on_delete=models.CASCADE)
+    user = models.ForeignKey(UserData, on_delete=models.CASCADE, null=True)
     photo = models.ImageField(upload_to="images/", storage=UUIDStorage)
     width = models.IntegerField(null=True, blank=False)
     height = models.IntegerField(null=True, blank=False)
@@ -122,8 +127,10 @@ class Image(models.Model):
 
     objects = ImageQuerySet.as_manager()
 
-    def save(self, *args, **kwargs):
+    def save(self, user, *args, **kwargs):
         super().save(*args, **kwargs)
+        self.user = user
+
         if not self.title and self.photo:
             self.title = os.path.splitext(os.path.basename(self.photo.name))[0]
 
@@ -166,7 +173,7 @@ class AudioQuerySet(models.QuerySet):
 
 class Audio(models.Model):
     title = models.CharField(max_length=20)
-    user = models.ForeignKey(UserData, on_delete=models.CASCADE)
+    user = models.ForeignKey(UserData, on_delete=models.CASCADE, null=True)
     audio = models.FileField(upload_to='audios/', storage=UUIDStorage)
     spectrogram = models.ImageField(upload_to='audios/spectrogram/', null=True, blank=True, storage=UUIDStorage)
     spectrum_diagram = models.ImageField(upload_to='audios/spectrum_diagram/', null=True, blank=True, storage=UUIDStorage)
@@ -174,8 +181,11 @@ class Audio(models.Model):
 
     objects = AudioQuerySet.as_manager()
 
-    def save(self, *args, **kwargs):
+    def save(self, user, *args, **kwargs):
         super().save(*args, **kwargs)
+
+        self.user = user
+
         try:
             if not self.title and self.audio:
                 self.title = os.path.splitext(os.path.basename(self.audio.name))[0]
