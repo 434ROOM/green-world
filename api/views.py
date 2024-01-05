@@ -438,7 +438,9 @@ class addAvatar(APIView):
         if serializer.is_valid():
             new_data = {}
 
-            user = request.user  # Assuming the user is authenticated
+            user = request.user
+            if user.avatar:
+                os.remove(user.avatar.path)
             user.avatar = serializer.validated_data['avatar']
             user.save()
             
