@@ -5,11 +5,11 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import FormParser, MultiPartParser
 from base.models import Video, Image, Audio
-from .serializers import GetVideoSerializer, GetImageSerializer, GetAudioSerializer, AddVideoSerializer, AddImageSerializer, AddAudioSerializer, UserSerializer, MyTokenObtainPairSerializer, AvatarSerializer
+from .serializers import GetVideoSerializer, GetImageSerializer, GetAudioSerializer, AddVideoSerializer, AddImageSerializer, AddAudioSerializer, UserSerializer, MyTokenObtainPairSerializer, MyTokenRefreshSerializer, AvatarSerializer
 from rest_framework.views import APIView
 from django.db.models import Q
 from rest_framework_simplejwt.tokens import AccessToken
-from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework import status
 
 
@@ -17,7 +17,6 @@ class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
 
     def post(self, request, *args, **kwargs):
-        now = datetime.datetime.now()
         response = super().post(request, *args, **kwargs)
 
         if response.status_code == status.HTTP_200_OK:
@@ -27,14 +26,16 @@ class CustomTokenObtainPairView(TokenObtainPairView):
             custom_data = {
                 'code' : status.HTTP_200_OK,
                 'msg' : "User logged in successfully",
-                'time' : now,
+                'time' : datetime.datetime.now(),
                 'refresh': refresh,
                 'access': access,
             }
             response.data = custom_data
 
         return response
-
+    
+class CustomTokenRefreshView(TokenRefreshView):
+    serializer_class = MyTokenRefreshSerializer
 
 class RegisterView(APIView):
     def post(self, request):
