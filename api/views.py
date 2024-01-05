@@ -376,53 +376,36 @@ class addAudio(APIView):
 def userProfile(request):
     auth = request.headers.get('Authorization')
     decoded_token = AccessToken(auth.split()[1]).payload
+
     user_id = decoded_token['user_id']
     username = decoded_token['username']
-
-    print(decoded_token)
-
-    videos = Video.objects.filter(Q(user__id=user_id))
-    images = Image.objects.filter(Q(user__id=user_id))
-    audios = Audio.objects.filter(Q(user__id=user_id))
-
-    data = {}
-    msg = ""
+    email = decoded_token['email']
     time = datetime.datetime.now()
 
-    if videos or images or audios:
-        video_serializer = GetVideoSerializer(videos, many=True)
-        image_serializer = GetImageSerializer(images, many=True)
-        audio_serializer = GetAudioSerializer(audios, many=True)
-
+    if user_id and username and email:
+        data = {
+            "user_id" : user_id,
+            "username" : username,
+            "email" : email
+        }
         code = status.HTTP_200_OK
         msg = "Get user profile successfully"
 
-        data.update({
+        return Response({
             "code" : code,
             "msg" : msg,
             "time" : time,
-            "username" : username,
-            "data" : {
-                "videos" : video_serializer.data,
-                "images" : image_serializer.data,
-                "audios" : audio_serializer.data
-            }
-        })
-
-        return Response(data)
+            "data" : data
+        }, code) 
     else:
-        code = status.HTTP_204_NO_CONTENT
-        msg = "Current user haven't uploaded anything!"
-
-        data.update({
+        code = status.HTTP_400_BAD_REQUEST
+        msg = "Unknown Error"
+        return Response({
             "code" : code,
             "msg" : msg,
             "time" : time,
-            "username" : username,
             "data" : {}
         })
-
-        return Response(data)
     
 @permission_classes([IsAuthenticated])
 class addAvatar(APIView):
