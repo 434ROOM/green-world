@@ -482,8 +482,16 @@ def changeProfile(request):
 def changePassword(request):
     try:
         user = request.user
-        password = request.data.get('password')
+        old_password = request.data.get('old_password')
 
+        if not user.check_password(old_password):
+            return Response({
+                "code" : status.HTTP_401_UNAUTHORIZED,
+                "msg" : "Password incorrect",
+                "time" : datetime.datetime.now()
+            }, status.HTTP_401_UNAUTHORIZED)
+
+        password = request.data.get('password')
         user.set_password(password)
         user.save()
 
