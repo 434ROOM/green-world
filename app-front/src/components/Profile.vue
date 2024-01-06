@@ -36,7 +36,7 @@
         <a-form :model="changePasswordFormState" name="normal_login" class="change-password-form" @submit="changePassword">
 
             <a-form-item name="old_password" :rules="[{ required: true, message: '请输入旧密码！' }]">
-                <a-input-password v-model:value="changePasswordFormState.password" placeholder="旧密码">
+                <a-input-password v-model:value="changePasswordFormState.old_password" placeholder="旧密码">
                     <template #prefix>
                         <LockOutlined class="site-form-item-icon" />
                     </template>
@@ -222,7 +222,8 @@ function changePassword() {
     // 构造axios请求，注意headers应该是配置对象的一部分
     axios.post(serverConfig.apiUrl + '/user/change-password', formData, {
         headers: {
-            'Content-Type': 'multipart/form-data'
+            'Content-Type': 'multipart/form-data',
+            Authorization: 'Bearer ' + JWTToken.getAccessToken(),
         }
     })
         .then((res) => {
