@@ -120,7 +120,7 @@ function getUserId() {
 
 function getAvatar() {
     const userProfile = JSON.parse(localStorage.getItem("user_profile"));
-    if (userProfile == null || userProfile.avatar == null) {
+    if (userProfile == null) {
         getProfile();
     }
     return userProfile.avatar;
