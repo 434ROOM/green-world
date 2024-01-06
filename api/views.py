@@ -378,7 +378,7 @@ def userProfile(request):
     user_id = request.user.id
     username = request.user.name
     email = request.user.email
-    avatar = request.user.avatar.url if request.user.avatar.url else ""
+    avatar = request.user.avatar.url if request.user.avatar else ""
     time = datetime.datetime.now()
 
     if user_id and username and email:
