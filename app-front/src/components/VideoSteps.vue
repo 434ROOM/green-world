@@ -107,15 +107,19 @@ const indicator = h(LoadingOutlined, {
     spin: true,
 });
 
-const selectedId = ref(0);
+const selectedId = ref();
 const isLoadding = ref(false);
 const open = ref(false);
 const isSelect = ref(false);
 
 function openVideoSelector() {
     getVideoList();
-    isSelect.value = false;
     open.value = true;
+    if (selectedId.value) {
+        isSelect.value = true;
+    } else {
+        isSelect.value = false;
+    }
 }
 
 function closeSelector() {
