@@ -257,7 +257,7 @@ function registerRequest() {
                 message.success('注册成功，请登录！');
                 current.value = switchData[0];
             } else {
-                message.error(res.data.message);
+                message.error(res.data.msg || '注册失败，请稍后重试！');
             }
         })
         .catch((err) => {
