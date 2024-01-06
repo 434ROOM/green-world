@@ -114,6 +114,7 @@ import { message } from 'ant-design-vue';
 import axios from 'axios';
 import serverConfig from '@/serverConfig';
 import JWTToken from '@/JWTToken.js';
+import EventBus from '@/EventBus';
 
 // 获取当前路由的查询参数对象
 const route = useRoute();
@@ -183,8 +184,12 @@ function loginRequest() {
                 if (responseData && responseData.access && responseData.refresh) {
                     JWTToken.setAccessToken(responseData.access);
                     JWTToken.setRefreshToken(responseData.refresh);
-                    message.success('登录成功！');
-                    router.push({ path: redirect });
+                    EventBus.on('userProfileChanged', () => {
+                        message.success('登录成功！');
+                        EventBus.off('userProfileChanged');
+                        router.push({ path: redirect });
+                    });
+
                 } else {
                     message.error('登录失败，请重试！');
                 }
