@@ -201,7 +201,7 @@ function loginRequest() {
                 } else {
                     message.error(err.response.data.msg || '登录失败，请稍后重试！');
                 }
-             } 
+            }
             else {
                 // 处理其他类型的错误，比如网络错误等
                 console.error(err);
@@ -253,11 +253,11 @@ function registerRequest() {
         }
     })
         .then((res) => {
-            if (res.status === 200) { // 在axios中，响应状态码通常在res.data中，这里可能需要调整
+            if (res.status === 200 || res.status === 201) {
                 message.success('注册成功，请登录！');
                 current.value = switchData[0];
             } else {
-                message.error(res.data.message); // 响应数据可能在res.data中
+                message.error(res.data.message);
             }
         })
         .catch((err) => {
@@ -268,7 +268,7 @@ function registerRequest() {
                 } else {
                     message.error(err.response.data.msg || '注册失败，请稍后重试！');
                 }
-             } 
+            }
             else {
                 // 处理其他类型的错误，比如网络错误等
                 console.error(err);
