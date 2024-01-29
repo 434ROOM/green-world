@@ -132,13 +132,13 @@ router.beforeEach((to, from) => {
   // 设置页面标题
   let wholeTitle = to.meta.title + " | GreenWorld - 人与自然和谐共生";
   document.title = wholeTitle;
+
   // 判断该路由是否需要登录权限
   if (JWTToken.hasToken()) {
     if (JWTToken.isVaildRefreshToken()) {
       if (!JWTToken.isVaildAccessToken()) {
         JWTToken.refreshToken();
       }
-      return true;
     } else {
       message.error('登录过期，请重新登录');
       JWTToken.logout();
@@ -149,10 +149,9 @@ router.beforeEach((to, from) => {
         path: '/login',
         query: { redirect: to.fullPath }
       });
-    } else {
-      return true;
     }
   }
+
   // 如果已登录，访问登录页面则跳转到首页
   if (to.path === '/login' && JWTToken.hasToken() && JWTToken.isVaildRefreshToken()) {
     message.success('您已登录，无需重复登录');
@@ -160,6 +159,7 @@ router.beforeEach((to, from) => {
       path: '/',
     });
   }
+  
   return true;
 });
 
